@@ -7,8 +7,12 @@ import type { Note, Content } from "../models/Note";
 
 const USER = "DEFAULT";
 
-function getTodayYYYYMMDD() {
+function getTodayYYYYMMDD(tzOffsetMinutes?: number) {
   const d = new Date();
+  if (typeof tzOffsetMinutes === "number") {
+    // Convert to user's local time using offset
+    d.setMinutes(d.getMinutes() + d.getTimezoneOffset() + tzOffsetMinutes);
+  }
   return d.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
@@ -17,18 +21,41 @@ export const MainPage: React.FC = () => {
   const [selectedDate, setSelectedDate] = useState<string>(
     notes.length > 0 ? notes[0].date : "",
   );
+  const [tzOffset, setTzOffset] = useState<number | undefined>(undefined);
 
+  // Ask for location on mount
+  React.useEffect(() => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          // Use Intl API to get timezone offset from location
+          try {
+            const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+            const now = new Date();
+            const localDate = new Date(
+              now.toLocaleString("en-US", { timeZone: tz }),
+            );
+            setTzOffset(-localDate.getTimezoneOffset());
+          } catch {
+            setTzOffset(undefined);
+          }
+        },
+        (err) => setTzOffset(undefined),
+      );
+    }
+  }, []);
+
+  // Set timezone offset if available
   // Find selected note
   const selectedNote = notes.find((n) => n.date === selectedDate);
 
   // Add new date
   const handleAddDate = () => {
-    const today = getTodayYYYYMMDD();
+    const today = getTodayYYYYMMDD(tzOffset);
     if (!notes.some((n) => n.date === today)) {
       addOrUpdateNote({ user: USER, date: today, contents: [] });
       setSelectedDate(today);
     } else {
-      // If today already exists, select it
       setSelectedDate(today);
     }
   };
