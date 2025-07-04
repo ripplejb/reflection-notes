@@ -21,35 +21,73 @@ function toYYYYMMDD(date: Date) {
   return date.toISOString().slice(0, 10).replace(/-/g, "");
 }
 
-export const DateComponent: React.FC<DateComponentProps> = ({
+export const DateComponent: React.FC<
+  DateComponentProps & {
+    isEditing?: boolean;
+    onDateEditDone?: () => void;
+    existingDates?: string[];
+    onRemoveTemp?: () => void;
+    onSelectExisting?: (date: string) => void;
+  }
+> = ({
   date,
   selected,
   onSelect,
   onUpdate,
   onDelete,
+  isEditing = false,
+  onDateEditDone,
+  existingDates = [],
+  onRemoveTemp,
+  onSelectExisting,
 }) => {
-  const [mode, setMode] = useState<"view" | "edit">("view");
-  const [editDate, setEditDate] = useState<Date | null>(null);
+  const [mode, setMode] = useState<"view" | "edit">(
+    isEditing ? "edit" : "view",
+  );
+  const [editDate, setEditDate] = useState<Date | null>(
+    date && date !== "new"
+      ? new Date(
+          `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T00:00:00`,
+        )
+      : null,
+  );
+  const [error, setError] = useState<string | null>(null);
 
   const handleEdit = () => {
     setEditDate(
-      new Date(
-        `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T00:00:00`,
-      ),
+      date && date !== "new"
+        ? new Date(
+            `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}T00:00:00`,
+          )
+        : null,
     );
     setMode("edit");
   };
 
   const handleSave = () => {
     if (editDate) {
-      onUpdate(toYYYYMMDD(editDate));
+      const newDateStr = toYYYYMMDD(editDate);
+      if (existingDates.includes(newDateStr)) {
+        if (window.confirm("Date already exists. Move to existing date?")) {
+          if (onRemoveTemp) onRemoveTemp();
+          if (onSelectExisting) onSelectExisting(newDateStr);
+        } else {
+          setError("Date already exists. Please choose another date.");
+        }
+        return;
+      }
+      onUpdate(newDateStr);
       setMode("view");
+      setError(null);
+      if (onDateEditDone) onDateEditDone();
     }
   };
 
   const handleCancel = () => {
     setMode("view");
     setEditDate(null);
+    setError(null);
+    if (onDateEditDone) onDateEditDone();
   };
 
   return (
@@ -63,7 +101,9 @@ export const DateComponent: React.FC<DateComponentProps> = ({
     >
       {mode === "view" ? (
         <>
-          <span className="text-lg">{formatDisplay(date)}</span>
+          <span className="text-lg">
+            {date === "new" ? "Set date..." : formatDisplay(date)}
+          </span>
           <div className="flex gap-2">
             <button
               className="text-gray-500 hover:text-blue-600"
@@ -91,7 +131,10 @@ export const DateComponent: React.FC<DateComponentProps> = ({
         <>
           <DatePicker
             selected={editDate || undefined}
-            onChange={(date) => setEditDate(date as Date)}
+            onChange={(date) => {
+              setEditDate(date as Date);
+              setError(null);
+            }}
             dateFormat="yyyy-MM-dd"
             className="border rounded px-2 py-1"
             autoFocus
@@ -118,6 +161,7 @@ export const DateComponent: React.FC<DateComponentProps> = ({
               <FaTimes />
             </button>
           </div>
+          {error && <span className="text-red-500 ml-2">{error}</span>}
         </>
       )}
     </div>
