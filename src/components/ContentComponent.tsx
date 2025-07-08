@@ -2,6 +2,7 @@ import React, { useState, useMemo, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import SimpleMDE from "react-simplemde-editor";
 import { FaEdit, FaCheck, FaTimes, FaTrash } from "react-icons/fa";
+import remarkGfm from "remark-gfm";
 import "easymde/dist/easymde.min.css";
 
 interface Content {
@@ -24,7 +25,7 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
   const [mode, setMode] = useState<"view" | "edit">("view");
   const [editHeader, setEditHeader] = useState(content.header);
   const [editContent, setEditContent] = useState(content.content);
-
+  const [, setHasUnsavedChanges] = useState(false);
   const handleEdit = () => {
     setEditHeader(content.header);
     setEditContent(content.content);
@@ -32,7 +33,6 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
   };
 
   const handleSave = () => {
-    onUpdate({ id: content.id, header: editHeader, content: editContent });
     setMode("view");
   };
 
@@ -42,9 +42,14 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
     setMode("view");
   };
 
-  const onContentChange = useCallback((value: string) => {
-    setEditContent(value);
-  }, []);
+  const onContentChange = useCallback(
+    (value: string) => {
+      setEditContent(value);
+      setHasUnsavedChanges(true);
+      onUpdate({ id: content.id, header: editHeader, content: value });
+    },
+    [content.id, editHeader, onUpdate],
+  );
 
   const contentOptions = useMemo(
     () => ({
@@ -79,7 +84,9 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
             </div>
           </div>
           <div className="prose max-w-none">
-            <ReactMarkdown>{content.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+              {content.content}
+            </ReactMarkdown>
           </div>
         </>
       ) : (
@@ -88,7 +95,15 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
             <input
               className="border rounded px-2 py-1 w-full font-bold text-xl"
               value={editHeader}
-              onChange={(e) => setEditHeader(e.target.value)}
+              onChange={(e) => {
+                setEditHeader(e.target.value);
+                setHasUnsavedChanges(true);
+                onUpdate({
+                  id: content.id,
+                  header: e.target.value,
+                  content: editContent,
+                });
+              }}
               placeholder="Header"
               autoFocus
             />

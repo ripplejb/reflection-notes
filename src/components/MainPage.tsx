@@ -4,11 +4,21 @@ import { DateComponent } from "./DateComponent";
 import { ContentComponent } from "./ContentComponent";
 import { useNotes } from "../hooks/useLocalStorage";
 import type { Note, Content } from "../models/Note";
+import { DiskStorageControls } from "./DiskStorageControls";
 
 const USER = "DEFAULT";
 
 export const MainPage: React.FC = () => {
-  const { notes, addOrUpdateNote, deleteNote } = useNotes();
+  const {
+    notes,
+    addOrUpdateNote,
+    deleteNote,
+    loadedFileName,
+    hasUnsavedChanges,
+    warnUnsaved,
+    saveToLocal,
+    handleLoad,
+  } = useNotes();
   const [selectedDate, setSelectedDate] = useState<string>(
     notes.length > 0 ? notes[0].date : "",
   );
@@ -156,6 +166,21 @@ export const MainPage: React.FC = () => {
         </section>
         {/* Right: Contents */}
         <section className="flex-1">
+          {"showOpenFilePicker" in window && "showSaveFilePicker" in window ? (
+            <DiskStorageControls
+              notes={notes}
+              onLoad={handleLoad}
+              onSave={handleSave}
+              loadedFileName={loadedFileName}
+              hasUnsavedChanges={hasUnsavedChanges}
+              onSaveToLocal={saveToLocal}
+              onWarnUnsaved={warnUnsaved}
+            />
+          ) : (
+            <div className="mb-4 text-red-600">
+              File System Access API is not supported in this browser.
+            </div>
+          )}
           <div className="flex justify-between items-center mb-2">
             <h2 className="font-semibold text-lg">
               {selectedNote
