@@ -170,7 +170,7 @@ export const MainPage: React.FC = () => {
             <DiskStorageControls
               notes={notes}
               onLoad={handleLoad}
-              onSave={handleSave}
+              onSave={saveToLocal}
               loadedFileName={loadedFileName}
               hasUnsavedChanges={hasUnsavedChanges}
               onSaveToLocal={saveToLocal}
