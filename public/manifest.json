@@ -1,0 +1,29 @@
+{
+  "name": "Reflection Notes",
+  "short_name": "Reflection Notes",
+  "description": "A modern app for creating and managing personal reflection notes",
+  "start_url": "/reflection-notes/",
+  "display": "standalone",
+  "background_color": "#f9fafb",
+  "theme_color": "#3B82F6",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "16x16",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/reflection-notes-icon.svg",
+      "sizes": "100x100",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "/reflection-notes-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "orientation": "portrait-primary"
+}
