@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { getNotes, saveNotes } from "../utils/storage";
 import type { Note } from "../models/Note";
+import { serviceContainer } from "../services/ServiceContainer";
 
 export function useNotes() {
-  const [notes, setNotes] = useState<Note[]>(getNotes());
+  const { storageService, fileSystemService } = serviceContainer;
+  
+  const [notes, setNotes] = useState<Note[]>(storageService.getNotes());
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null);
   const [loadedFileName, setLoadedFileName] = useState<string | null>(() => {
     const stored = localStorage.getItem("reflection-notes-file-name");
@@ -11,47 +13,33 @@ export function useNotes() {
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  const refresh = () => setNotes(getNotes());
+  const refresh = () => setNotes(storageService.getNotes());
 
   const addOrUpdateNote = (note: Note) => {
     const updated = notes.filter((n) => n.date !== note.date).concat(note);
-    saveNotes(updated);
+    storageService.saveNotes(updated);
     setNotes(updated);
     setHasUnsavedChanges(true);
   };
 
   const deleteNote = (date: string) => {
     const updated = notes.filter((n) => n.date !== date);
-    saveNotes(updated);
+    storageService.saveNotes(updated);
     setNotes(updated);
     setHasUnsavedChanges(true);
   };
 
   // Save as new file
   const saveAs = async () => {
-    if (!(window as any).showSaveFilePicker) {
+    if (!fileSystemService.isSupported()) {
       throw new Error("File System Access API not supported");
     }
     
-    const handle = await (window as any).showSaveFilePicker({
-      types: [
-        {
-          description: "Reflection Notes JSON",
-          accept: { "application/json": [".json"] },
-        },
-      ],
-      excludeAcceptAllOption: true,
-    });
-    
-    if (!handle) return;
-    
-    const writable = await handle.createWritable();
-    await writable.write(JSON.stringify(notes, null, 2));
-    await writable.close();
+    const { fileHandle: handle, fileName } = await fileSystemService.saveAs(notes);
     
     setFileHandle(handle);
-    setLoadedFileName(handle.name);
-    localStorage.setItem("reflection-notes-file-name", handle.name);
+    setLoadedFileName(fileName);
+    localStorage.setItem("reflection-notes-file-name", fileName);
     setHasUnsavedChanges(false);
   };
 
@@ -61,9 +49,7 @@ export function useNotes() {
       await saveAs();
       return;
     }
-    const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(notes, null, 2));
-    await writable.close();
+    await fileSystemService.save(notes, fileHandle);
     setHasUnsavedChanges(false);
   };
 
@@ -73,7 +59,7 @@ export function useNotes() {
     const text = await file.text();
     const loadedNotes = JSON.parse(text) as Note[];
     setNotes(loadedNotes);
-    saveNotes(loadedNotes);
+    storageService.saveNotes(loadedNotes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
     localStorage.setItem("reflection-notes-file-name", handle.name);
@@ -97,7 +83,7 @@ export function useNotes() {
   // For loading a new file
   const handleLoad = async (notes: Note[], handle: FileSystemFileHandle) => {
     setNotes(notes);
-    saveNotes(notes);
+    storageService.saveNotes(notes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
     localStorage.setItem("reflection-notes-file-name", handle.name);

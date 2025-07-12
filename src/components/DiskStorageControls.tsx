@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import { FaSave, FaFolderOpen } from "react-icons/fa";
 import type { Note } from "../models/Note";
+import { serviceContainer } from "../services/ServiceContainer";
 
 interface DiskStorageControlsProps {
   notes: Note[];
   onLoad: (notes: Note[], fileHandle: FileSystemFileHandle) => void;
-  onSave: (fileHandle: FileSystemFileHandle) => void;
   loadedFileName: string | null;
   hasUnsavedChanges: boolean;
   onSaveToLocal: () => void;
@@ -23,10 +23,11 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
 }) => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const { fileSystemService } = serviceContainer;
 
   // Open file and load notes
   const handleLoad = async () => {
-    if (!(window as any).showOpenFilePicker) {
+    if (!fileSystemService.isSupported()) {
       alert("File System Access API not supported in this browser.");
       return;
     }
@@ -36,30 +37,17 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
     }
     setLoading(true);
     try {
-      const [fileHandle] = await (window as any).showOpenFilePicker({
-        types: [
-          {
-            description: "Reflection Notes JSON",
-            accept: { "application/json": [".json"] },
-          },
-        ],
-        excludeAcceptAllOption: true,
-        multiple: false,
-      });
-      if (!fileHandle) return;
-      const file = await fileHandle.getFile();
-      const text = await file.text();
-      const loadedNotes = JSON.parse(text) as Note[];
-      onLoad(loadedNotes, fileHandle);
-    } catch (e) {
-      // User cancelled or error
+      const { notes, fileHandle } = await fileSystemService.load();
+      onLoad(notes, fileHandle);
+    } catch {
+      // User cancelled or error - do nothing
     }
     setLoading(false);
   };
 
   // Save notes to loaded file or save as new file
   const handleSave = async () => {
-    if (!(window as any).showSaveFilePicker) {
+    if (!fileSystemService.isSupported()) {
       alert("File System Access API not supported in this browser.");
       return;
     }

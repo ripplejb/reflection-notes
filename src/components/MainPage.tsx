@@ -98,7 +98,7 @@ export const MainPage: React.FC = () => {
     if (!selectedNote) return;
     const newContent: Content = {
       id: crypto.randomUUID(),
-      header: "New Header",
+      header: "",
       content: "",
     };
     const updatedNote: Note = {
@@ -141,7 +141,6 @@ export const MainPage: React.FC = () => {
           <DiskStorageControls
             notes={notes}
             onLoad={handleLoad}
-            onSave={saveToLocal}
             loadedFileName={loadedFileName}
             hasUnsavedChanges={hasUnsavedChanges}
             onSaveToLocal={saveToLocal}
