@@ -17,6 +17,7 @@ export const MainPage: React.FC = () => {
     hasUnsavedChanges,
     warnUnsaved,
     saveToLocal,
+    saveAs,
     handleLoad,
   } = useNotes();
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -128,12 +129,30 @@ export const MainPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="flex items-center gap-4 bg-white shadow px-6 py-4">
-        <div className="flex flex-col items-center mr-4">
-          <FaUserCircle className="text-3xl text-gray-500" />
-          <span className="text-xs text-gray-600">{USER}</span>
+      <header className="flex items-center justify-between gap-4 bg-white shadow px-6 py-4">
+        <div className="flex items-center gap-4">
+          <div className="flex flex-col items-center mr-4">
+            <FaUserCircle className="text-3xl text-gray-500" />
+            <span className="text-xs text-gray-600">{USER}</span>
+          </div>
+          <h1 className="text-2xl font-bold text-gray-800">Reflection Notes</h1>
         </div>
-        <h1 className="text-2xl font-bold text-gray-800">Reflection Notes</h1>
+        {"showOpenFilePicker" in window && "showSaveFilePicker" in window ? (
+          <DiskStorageControls
+            notes={notes}
+            onLoad={handleLoad}
+            onSave={saveToLocal}
+            loadedFileName={loadedFileName}
+            hasUnsavedChanges={hasUnsavedChanges}
+            onSaveToLocal={saveToLocal}
+            onSaveAs={saveAs}
+            onWarnUnsaved={warnUnsaved}
+          />
+        ) : (
+          <div className="text-red-600 text-sm">
+            File System Access API is not supported in this browser.
+          </div>
+        )}
       </header>
       {/* Main Content */}
       <main className="flex flex-row gap-4 px-6 py-6">
@@ -166,21 +185,6 @@ export const MainPage: React.FC = () => {
         </section>
         {/* Right: Contents */}
         <section className="flex-1">
-          {"showOpenFilePicker" in window && "showSaveFilePicker" in window ? (
-            <DiskStorageControls
-              notes={notes}
-              onLoad={handleLoad}
-              onSave={saveToLocal}
-              loadedFileName={loadedFileName}
-              hasUnsavedChanges={hasUnsavedChanges}
-              onSaveToLocal={saveToLocal}
-              onWarnUnsaved={warnUnsaved}
-            />
-          ) : (
-            <div className="mb-4 text-red-600">
-              File System Access API is not supported in this browser.
-            </div>
-          )}
           <div className="flex justify-between items-center mb-2">
             <h2 className="font-semibold text-lg">
               {selectedNote

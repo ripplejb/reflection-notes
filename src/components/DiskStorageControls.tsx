@@ -9,6 +9,7 @@ interface DiskStorageControlsProps {
   loadedFileName: string | null;
   hasUnsavedChanges: boolean;
   onSaveToLocal: () => void;
+  onSaveAs: () => void;
   onWarnUnsaved: () => Promise<boolean>;
 }
 
@@ -17,6 +18,7 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
   loadedFileName,
   hasUnsavedChanges,
   onSaveToLocal,
+  onSaveAs,
   onWarnUnsaved,
 }) => {
   const [loading, setLoading] = useState(false);
@@ -55,31 +57,42 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
     setLoading(false);
   };
 
-  // Save notes to loaded file
+  // Save notes to loaded file or save as new file
   const handleSave = async () => {
     if (!(window as any).showSaveFilePicker) {
       alert("File System Access API not supported in this browser.");
       return;
     }
     setSaving(true);
-    onSaveToLocal();
+    try {
+      if (loadedFileName) {
+        // Save to existing file
+        await onSaveToLocal();
+      } else {
+        // Save as new file (prompt user for file name and location)
+        await onSaveAs();
+      }
+    } catch (error) {
+      console.error("Error saving file:", error);
+      alert("Error saving file. Please try again.");
+    }
     setSaving(false);
   };
 
   return (
-    <div className="flex flex-col items-end gap-2 mb-4">
+    <div className="flex flex-col items-end gap-1">
       <div className="flex gap-2">
         <button
-          className="bg-blue-600 text-white px-3 py-1 rounded flex items-center gap-1"
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 px-3 py-2 rounded border border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed min-w-[100px] justify-center"
           onClick={handleLoad}
           disabled={loading}
         >
-          <FaFolderOpen /> Load File
+          <FaFolderOpen /> Load
         </button>
         <button
-          className="bg-green-600 text-white px-3 py-1 rounded flex items-center gap-1"
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 px-3 py-2 rounded border border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed min-w-[100px] justify-center"
           onClick={handleSave}
-          disabled={saving || !loadedFileName}
+          disabled={saving}
         >
           <FaSave /> Save
         </button>

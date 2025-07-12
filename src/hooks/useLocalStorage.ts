@@ -4,16 +4,7 @@ import type { Note } from "../models/Note";
 
 export function useNotes() {
   const [notes, setNotes] = useState<Note[]>(getNotes());
-  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(
-    () => {
-      const stored = localStorage.getItem("reflection-notes-file");
-      return stored
-        ? (window as any).showOpenFilePicker
-          ? JSON.parse(stored)
-          : null
-        : null;
-    },
-  );
+  const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null);
   const [loadedFileName, setLoadedFileName] = useState<string | null>(() => {
     const stored = localStorage.getItem("reflection-notes-file-name");
     return stored || null;
@@ -36,9 +27,40 @@ export function useNotes() {
     setHasUnsavedChanges(true);
   };
 
+  // Save as new file
+  const saveAs = async () => {
+    if (!(window as any).showSaveFilePicker) {
+      throw new Error("File System Access API not supported");
+    }
+    
+    const handle = await (window as any).showSaveFilePicker({
+      types: [
+        {
+          description: "Reflection Notes JSON",
+          accept: { "application/json": [".json"] },
+        },
+      ],
+      excludeAcceptAllOption: true,
+    });
+    
+    if (!handle) return;
+    
+    const writable = await handle.createWritable();
+    await writable.write(JSON.stringify(notes, null, 2));
+    await writable.close();
+    
+    setFileHandle(handle);
+    setLoadedFileName(handle.name);
+    localStorage.setItem("reflection-notes-file-name", handle.name);
+    setHasUnsavedChanges(false);
+  };
+
   // Save to disk file if loaded
   const saveToDisk = async () => {
-    if (!fileHandle) return;
+    if (!fileHandle) {
+      await saveAs();
+      return;
+    }
     const writable = await fileHandle.createWritable();
     await writable.write(JSON.stringify(notes, null, 2));
     await writable.close();
@@ -54,7 +76,6 @@ export function useNotes() {
     saveNotes(loadedNotes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
-    localStorage.setItem("reflection-notes-file", JSON.stringify(handle));
     localStorage.setItem("reflection-notes-file-name", handle.name);
     setHasUnsavedChanges(false);
   };
@@ -79,7 +100,6 @@ export function useNotes() {
     saveNotes(notes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
-    localStorage.setItem("reflection-notes-file", JSON.stringify(handle));
     localStorage.setItem("reflection-notes-file-name", handle.name);
     setHasUnsavedChanges(false);
   };
@@ -93,6 +113,7 @@ export function useNotes() {
     loadedFileName,
     hasUnsavedChanges,
     saveToDisk,
+    saveAs,
     loadFromDisk,
     warnUnsaved,
     saveToLocal,
