@@ -51,6 +51,46 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
     [content.id, editHeader, onUpdate],
   );
 
+  // Preprocess markdown to fix common formatting issues
+  const preprocessMarkdown = (text: string): string => {
+    // Fix nested lists that start with tabs or are indented
+    const lines = text.split('\n');
+    const processedLines: string[] = [];
+    
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i];
+      
+      // Check if this line is a numbered list item that starts with tab or multiple spaces
+      if (/^\s*\d+\.\s/.test(line)) {
+        const indent = line.match(/^(\s*)/)?.[1] || '';
+        
+        // If it's indented (tab or multiple spaces), convert to proper markdown nested list
+        if (indent.length > 0) {
+          // Convert tabs to spaces and ensure proper markdown indentation
+          const spaces = '   '; // 3 spaces for proper markdown nesting
+          const cleanLine = line.replace(/^\s*/, spaces);
+          processedLines.push(cleanLine);
+        } else {
+          processedLines.push(line);
+        }
+      } else if (/^\s*[-*]\s/.test(line)) {
+        // Handle bullet lists with tabs/indentation
+        const indent = line.match(/^(\s*)/)?.[1] || '';
+        if (indent.length > 0) {
+          const spaces = '   '; // 3 spaces for proper markdown nesting
+          const cleanLine = line.replace(/^\s*/, spaces);
+          processedLines.push(cleanLine);
+        } else {
+          processedLines.push(line);
+        }
+      } else {
+        processedLines.push(line);
+      }
+    }
+    
+    return processedLines.join('\n');
+  };
+
   const contentOptions = useMemo(
     () => ({
       autofocus: true,
@@ -83,9 +123,11 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
               </button>
             </div>
           </div>
-          <div className="prose max-w-none">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {content.content}
+          <div className="prose">
+            <ReactMarkdown 
+              remarkPlugins={[remarkGfm]}
+            >
+              {preprocessMarkdown(content.content)}
             </ReactMarkdown>
           </div>
         </>
