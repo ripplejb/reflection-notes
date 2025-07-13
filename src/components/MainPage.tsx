@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { FaUserCircle, FaPlus } from "react-icons/fa";
 import { DateComponent } from "./DateComponent";
+import { DateRangeFilter } from "./DateRangeFilter";
 import { ContentComponent } from "./ContentComponent";
 import { useNotes } from "../hooks/useLocalStorage";
 import type { Note, Content } from "../models/Note";
 import { DiskStorageControls } from "./DiskStorageControls";
+import { serviceContainer } from "../services/ServiceContainer";
 
 const USER = "DEFAULT";
 
@@ -25,6 +27,13 @@ export const MainPage: React.FC = () => {
     notes.length > 0 ? notes[0].date : "",
   );
   const [, setTzOffset] = useState<number | undefined>(undefined);
+  const [dateRangeFilter, setDateRangeFilter] = useState<{
+    startDate: string | null;
+    endDate: string | null;
+  }>({
+    startDate: null,
+    endDate: null,
+  });
 
   // Ask for location on mount
   React.useEffect(() => {
@@ -69,8 +78,40 @@ export const MainPage: React.FC = () => {
   // Find selected note
   const selectedNote = notes.find((n) => n.date === selectedDate);
 
+  // Filter notes based on date range using FilterService
+  const filteredNotes = serviceContainer.filterService.filterByDateRange(
+    notes, 
+    dateRangeFilter.startDate, 
+    dateRangeFilter.endDate
+  );
+
+  // Handle date range filter changes
+  const handleDateRangeFilterChange = (startDate: string | null, endDate: string | null) => {
+    setDateRangeFilter({ startDate, endDate });
+    
+    // If current selected date is not in filtered range, select first available
+    if (startDate || endDate) {
+      const firstNoteInRange = serviceContainer.filterService.findFirstNoteInRange(
+        notes, 
+        startDate, 
+        endDate
+      );
+      
+      const isSelectedInRange = selectedNote 
+        ? serviceContainer.filterService.isNoteInDateRange(selectedNote, startDate, endDate)
+        : false;
+      
+      if (!isSelectedInRange && firstNoteInRange) {
+        setSelectedDate(firstNoteInRange.date);
+      }
+    }
+  };
+
   // Add new date
   const handleAddDate = () => {
+    // Clear any active date range filter to ensure new date is visible
+    setDateRangeFilter({ startDate: null, endDate: null });
+    
     // Add a new note with empty date and set it in edit mode
     const tempId = "new";
     addOrUpdateNote({
@@ -178,28 +219,41 @@ export const MainPage: React.FC = () => {
         <section className="w-1/4">
           <div className="flex justify-between items-center mb-2">
             <h2 className="font-semibold text-lg">Dates</h2>
-            <button
-              className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
-              onClick={handleAddDate}
-              aria-label="Add date"
-            >
-              <FaPlus /> Add
-            </button>
+            <div className="flex items-center gap-2">
+              <DateRangeFilter
+                onFilterChange={handleDateRangeFilterChange}
+                isActive={!!(dateRangeFilter.startDate || dateRangeFilter.endDate)}
+              />
+              <button
+                className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                onClick={handleAddDate}
+                aria-label="Add date"
+              >
+                <FaPlus /> Add
+              </button>
+            </div>
           </div>
-          <div className="space-y-2">
-            {notes
-              .sort((a, b) => b.date.localeCompare(a.date))
-              .map((note) => (
-                <DateComponent
-                  key={note.date}
-                  date={note.date}
-                  selected={note.date === selectedDate}
-                  onSelect={setSelectedDate}
-                  onUpdate={(newDate) => handleUpdateDate(note.date, newDate)}
-                  onDelete={() => handleDeleteDate(note.date)}
-                />
-              ))}
-          </div>
+          
+          {filteredNotes.length === 0 && (dateRangeFilter.startDate || dateRangeFilter.endDate) ? (
+            <div className="text-gray-500 text-sm py-4 text-center">
+              No dates found in selected range
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredNotes
+                .sort((a, b) => b.date.localeCompare(a.date))
+                .map((note) => (
+                  <DateComponent
+                    key={note.date}
+                    date={note.date}
+                    selected={note.date === selectedDate}
+                    onSelect={setSelectedDate}
+                    onUpdate={(newDate) => handleUpdateDate(note.date, newDate)}
+                    onDelete={() => handleDeleteDate(note.date)}
+                  />
+                ))}
+            </div>
+          )}
         </section>
         {/* Right: Contents */}
         <section className="flex-1">

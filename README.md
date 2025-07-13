@@ -28,6 +28,8 @@ In a world where everything goes to the cloud, your most personal thoughts and r
 - **Intelligent Header System**: Predefined reflection headers with dropdown selection
 - **Auto-Dropdown**: Empty header fields automatically show suggested options
 - Custom header support alongside predefined options
+- **Date Range Filtering**: Quickly find notes within specific date ranges for fast searching
+- **Smart Filter Clearing**: Filters automatically clear when adding new dates for seamless workflow
 
 ### 🎯 **Predefined Reflection Headers**
 - Goals, Achievements, Gratitudes
@@ -42,6 +44,7 @@ In a world where everything goes to the cloud, your most personal thoughts and r
 - **Smart Unsaved Changes Protection**: Browser warnings and visual indicators prevent data loss
 - **Comprehensive Warning System**: Alerts when leaving page or loading files
 - **Visual Status Indicators**: Orange save button and status text for unsaved changes
+- **File Handle Recovery**: Intelligent detection and recovery when file handles are lost after page reload
 - **Standard JSON Format**: Easy data portability and backup - you own your data completely
 - **Offline Capable**: Works entirely offline with localStorage fallback
 
@@ -84,11 +87,13 @@ In a world where everything goes to the cloud, your most personal thoughts and r
 - **FileSystemService**: File operations abstraction
 - **MarkdownProcessor**: Extensible markdown processing with rule system
 - **ConfigurationService**: Application settings and predefined headers
+- **FilterService**: Note filtering operations following SOLID principles
 
 ### Component Architecture
 - **ContentViewer**: Pure presentation component for read-only display
 - **ContentEditor**: Dedicated editing functionality with smart features
 - **HeaderDropdown**: Reusable dropdown with predefined options
+- **DateRangeFilter**: Advanced filtering component with date picker interface
 - **ServiceContainer**: Centralized dependency management
 
 ## Getting Started
@@ -135,6 +140,13 @@ npm run preview
    - **Quick Selection**: Choose from Goals, Achievements, Gratitudes, and more
    - **Custom Headers**: Type your own custom reflection headers
 
+### Date Range Filtering
+- **Quick Search**: Use the date range filter to find notes within specific time periods
+- **Flexible Ranges**: Set start date, end date, or both for precise filtering
+- **Visual Indicators**: Clear status showing when filters are active
+- **Smart Navigation**: Automatically selects first note in filtered range
+- **Filter Clearing**: Filters automatically clear when adding new dates for uninterrupted workflow
+
 ### Header Dropdown Features
 - **14 Predefined Options**: Carefully curated reflection categories
 - **Auto-Open**: Clicking on empty header fields automatically shows suggestions
@@ -152,6 +164,7 @@ npm run preview
   - First save prompts for file location and name
   - Subsequent saves update the existing file automatically
   - Visual indicator shows current loaded file name
+  - File handle loss detection and recovery after page reload
 - **Intelligent Load**: Click Load to open existing notes
   - Warns about unsaved changes before loading
   - Supports standard JSON format for portability
@@ -201,13 +214,15 @@ src/
 │   ├── ContentViewer.tsx    # Display functionality
 │   ├── HeaderDropdown.tsx   # Smart header suggestions
 │   ├── DateComponent.tsx    # Date management
+│   ├── DateRangeFilter.tsx  # Date range filtering interface
 │   └── DiskStorageControls.tsx # File operations
 ├── services/            # Service layer (DI pattern)
 │   ├── ServiceContainer.ts    # Dependency injection container
 │   ├── StorageService.ts      # Data persistence abstraction
 │   ├── FileSystemService.ts   # File operations abstraction
 │   ├── MarkdownProcessor.ts   # Content processing service
-│   └── ConfigurationService.ts # App configuration
+│   ├── ConfigurationService.ts # App configuration
+│   └── FilterService.ts       # Note filtering operations
 ├── hooks/              # Custom React hooks
 │   └── useLocalStorage.ts # Persistent state management
 ├── models/             # Type definitions
@@ -218,7 +233,11 @@ src/
 
 tests/                  # Automated test suite
 ├── test-functionality.js
+├── filter-service-test.ts
 └── README.md
+
+docs/                   # Architecture documentation
+└── SOLID-FilterService-Refactoring.md
 
 .github/workflows/      # GitHub Actions
 └── deploy.yml         # Auto-deployment workflow
@@ -243,13 +262,26 @@ tests/                  # Automated test suite
 - **Interface Segregation**: Clean, focused service interfaces
 - **Dependency Inversion**: High-level modules don't depend on low-level modules
 
+### Recent SOLID Compliance Improvements
+
+The FilterService refactoring demonstrates enterprise-level SOLID compliance:
+
+- **Extracted Business Logic**: Moved date filtering logic from UI components to dedicated service
+- **Interface-Based Design**: `IFilterService` interface enables future extensibility
+- **Service Container Integration**: Follows established dependency injection patterns
+- **Comprehensive Testing**: Unit tests validate SOLID principle adherence
+- **Documentation**: Detailed architectural documentation in `docs/SOLID-FilterService-Refactoring.md`
+
+This refactoring ensures consistent architecture throughout the application and makes adding new filtering capabilities (tags, content search, user-based filters) straightforward without violating existing code.
+
 ## Testing
 
 The application includes a comprehensive automated test suite covering:
 - Component functionality and user interactions
 - Service layer business logic and integrations
-- SOLID architecture compliance
+- SOLID architecture compliance and FilterService functionality
 - Type safety validation
+- Date range filtering operations
 
 See `tests/README.md` for detailed testing instructions.
 
@@ -257,6 +289,11 @@ Quick test run:
 1. Start the development server (`npm run dev`)
 2. Open browser console on `http://localhost:5173/`
 3. Run: `window.runReflectionNotesTests()`
+
+Manual FilterService testing:
+```bash
+npx tsx tests/filter-service-test.ts
+```
 - **Vite 7.0.0** - Lightning-fast development and optimized builds
 - **Tailwind CSS** - Utility-first styling with responsive design
 - **Service Architecture** - Enterprise-level dependency injection pattern
@@ -306,11 +343,12 @@ npm run dev
 - **Interface Abstractions**: Dependency Inversion throughout
 
 ### Adding New Features
-1. **Services**: Add new capabilities through the service layer
+1. **Services**: Add new capabilities through the service layer (follow FilterService example)
 2. **Components**: Follow SRP - split complex components when needed
 3. **Dependencies**: Use ServiceContainer for dependency injection
 4. **Types**: Define proper interfaces in models/
 5. **Tests**: Include comprehensive test coverage for new functionality
+6. **Documentation**: Update docs/ for significant architectural changes
 
 ## Contributing
 

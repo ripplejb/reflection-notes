@@ -8,8 +8,13 @@ export function useNotes() {
   const [notes, setNotes] = useState<Note[]>(storageService.getNotes());
   const [fileHandle, setFileHandle] = useState<FileSystemFileHandle | null>(null);
   const [loadedFileName, setLoadedFileName] = useState<string | null>(() => {
-    const stored = localStorage.getItem("reflection-notes-file-name");
-    return stored || null;
+    try {
+      const stored = localStorage.getItem("reflection-notes-file-name");
+      return stored || null;
+    } catch (error) {
+      console.warn("Failed to retrieve file name from localStorage:", error);
+      return null;
+    }
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isFileHandleLost, setIsFileHandleLost] = useState(false);
@@ -50,7 +55,11 @@ export function useNotes() {
     
     setFileHandle(handle);
     setLoadedFileName(fileName);
-    localStorage.setItem("reflection-notes-file-name", fileName);
+    try {
+      localStorage.setItem("reflection-notes-file-name", fileName);
+    } catch (error) {
+      console.warn("Failed to save file name to localStorage:", error);
+    }
     setHasUnsavedChanges(false);
     setIsFileHandleLost(false); // Clear the lost flag when we get a new handle
   };
@@ -68,15 +77,30 @@ export function useNotes() {
 
   // Load from disk file
   const loadFromDisk = async (handle: FileSystemFileHandle) => {
-    const file = await handle.getFile();
-    const text = await file.text();
-    const loadedNotes = JSON.parse(text) as Note[];
-    setNotes(loadedNotes);
-    storageService.saveNotes(loadedNotes);
-    setFileHandle(handle);
-    setLoadedFileName(handle.name);
-    localStorage.setItem("reflection-notes-file-name", handle.name);
-    setHasUnsavedChanges(false);
+    try {
+      const file = await handle.getFile();
+      const text = await file.text();
+      const loadedNotes = JSON.parse(text) as Note[];
+      
+      // Validate that loaded data is an array
+      if (!Array.isArray(loadedNotes)) {
+        throw new Error("Invalid file format: expected array of notes");
+      }
+      
+      setNotes(loadedNotes);
+      storageService.saveNotes(loadedNotes);
+      setFileHandle(handle);
+      setLoadedFileName(handle.name);
+      try {
+        localStorage.setItem("reflection-notes-file-name", handle.name);
+      } catch (error) {
+        console.warn("Failed to save file name to localStorage:", error);
+      }
+      setHasUnsavedChanges(false);
+    } catch (error) {
+      console.error("Failed to load file:", error);
+      throw new Error(`Failed to load file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   };
 
   // For warning unsaved changes
@@ -98,7 +122,11 @@ export function useNotes() {
     storageService.saveNotes(notes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
-    localStorage.setItem("reflection-notes-file-name", handle.name);
+    try {
+      localStorage.setItem("reflection-notes-file-name", handle.name);
+    } catch (error) {
+      console.warn("Failed to save file name to localStorage:", error);
+    }
     setHasUnsavedChanges(false);
     setIsFileHandleLost(false); // Clear the lost flag when loading a file
   };

@@ -8,17 +8,17 @@
   "theme_color": "#3B82F6",
   "icons": [
     {
-      "src": "/favicon.svg",
+      "src": "/reflection-notes/favicon.svg",
       "sizes": "16x16",
       "type": "image/svg+xml"
     },
     {
-      "src": "/reflection-notes-icon.svg",
+      "src": "/reflection-notes/reflection-notes-icon.svg",
       "sizes": "100x100",
       "type": "image/svg+xml"
     },
     {
-      "src": "/reflection-notes-192.svg",
+      "src": "/reflection-notes/reflection-notes-192.svg",
       "sizes": "192x192",
       "type": "image/svg+xml",
       "purpose": "any maskable"
