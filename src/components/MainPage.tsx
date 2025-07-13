@@ -194,7 +194,14 @@ export const MainPage: React.FC = () => {
             <FaUserCircle className="text-3xl text-gray-500" />
             <span className="text-xs text-gray-600">{USER}</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-800">Reflection Notes</h1>
+          <div className="flex items-center gap-3">
+            <img 
+              src="/reflection-notes/reflection-notes-icon.svg" 
+              alt="Reflection Notes Logo" 
+              className="w-8 h-8"
+            />
+            <h1 className="text-2xl font-bold text-gray-800">Reflection Notes</h1>
+          </div>
         </div>
         {"showOpenFilePicker" in window && "showSaveFilePicker" in window ? (
           <DiskStorageControls
