@@ -15,6 +15,7 @@ export const MainPage: React.FC = () => {
     deleteNote,
     loadedFileName,
     hasUnsavedChanges,
+    isFileHandleLost,
     warnUnsaved,
     saveToLocal,
     saveAs,
@@ -46,6 +47,23 @@ export const MainPage: React.FC = () => {
       );
     }
   }, []);
+
+  // Warn users about unsaved changes when leaving the page
+  React.useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (hasUnsavedChanges) {
+        event.preventDefault();
+        event.returnValue = "You have unsaved changes. Are you sure you want to leave?";
+        return "You have unsaved changes. Are you sure you want to leave?";
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [hasUnsavedChanges]);
 
   // Set timezone offset if available
   // Find selected note
@@ -143,6 +161,7 @@ export const MainPage: React.FC = () => {
             onLoad={handleLoad}
             loadedFileName={loadedFileName}
             hasUnsavedChanges={hasUnsavedChanges}
+            isFileHandleLost={isFileHandleLost}
             onSaveToLocal={saveToLocal}
             onSaveAs={saveAs}
             onWarnUnsaved={warnUnsaved}

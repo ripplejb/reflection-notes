@@ -8,6 +8,7 @@ interface DiskStorageControlsProps {
   onLoad: (notes: Note[], fileHandle: FileSystemFileHandle) => void;
   loadedFileName: string | null;
   hasUnsavedChanges: boolean;
+  isFileHandleLost: boolean;
   onSaveToLocal: () => void;
   onSaveAs: () => void;
   onWarnUnsaved: () => Promise<boolean>;
@@ -17,6 +18,7 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
   onLoad,
   loadedFileName,
   hasUnsavedChanges,
+  isFileHandleLost,
   onSaveToLocal,
   onSaveAs,
   onWarnUnsaved,
@@ -31,7 +33,7 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
       alert("File System Access API not supported in this browser.");
       return;
     }
-    if (!loadedFileName && hasUnsavedChanges) {
+    if (hasUnsavedChanges) {
       const proceed = await onWarnUnsaved();
       if (!proceed) return;
     }
@@ -78,16 +80,28 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
           <FaFolderOpen /> Load
         </button>
         <button
-          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 px-3 py-2 rounded border border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed min-w-[100px] justify-center"
+          className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[100px] justify-center disabled:cursor-not-allowed ${
+            hasUnsavedChanges 
+              ? "text-orange-600 hover:text-orange-800 border-orange-200 hover:border-orange-300 disabled:text-gray-400 disabled:border-gray-200" 
+              : "text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200"
+          }`}
           onClick={handleSave}
           disabled={saving}
         >
-          <FaSave /> Save
+          <FaSave /> Save{hasUnsavedChanges ? " *" : ""}
         </button>
       </div>
-      {loadedFileName && (
-        <div className="text-xs text-gray-600">Loaded: {loadedFileName}</div>
-      )}
+      <div className="text-xs text-gray-600 text-right">
+        {loadedFileName && (
+          <div className={isFileHandleLost ? "text-orange-600" : ""}>
+            {isFileHandleLost ? "⚠ " : ""}Loaded: {loadedFileName}
+            {isFileHandleLost && <div className="text-orange-600 font-medium">File connection lost - click Save to reconnect</div>}
+          </div>
+        )}
+        {hasUnsavedChanges && (
+          <div className="text-orange-600 font-medium">• Unsaved changes</div>
+        )}
+      </div>
     </div>
   );
 };

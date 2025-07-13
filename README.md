@@ -24,7 +24,9 @@ A modern React application for creating and managing personal reflection notes w
 
 ### 💾 **Advanced File Operations**
 - Save and load notes using native File System Access API
-- Intelligent file handling with unsaved changes warnings
+- **Smart Unsaved Changes Protection**: Browser warnings and visual indicators
+- **Comprehensive Warning System**: Alerts when leaving page or loading files
+- **Visual Status Indicators**: Orange save button and status text for unsaved changes
 - JSON format for easy data portability
 - Browser fallback with localStorage persistence
 

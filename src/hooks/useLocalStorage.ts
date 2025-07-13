@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Note } from "../models/Note";
 import { serviceContainer } from "../services/ServiceContainer";
 
@@ -12,6 +12,17 @@ export function useNotes() {
     return stored || null;
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [isFileHandleLost, setIsFileHandleLost] = useState(false);
+
+  // Check if fileHandle is lost after page reload
+  useEffect(() => {
+    if (loadedFileName && !fileHandle) {
+      // File name is shown but handle is lost due to page reload
+      setIsFileHandleLost(true);
+    } else {
+      setIsFileHandleLost(false);
+    }
+  }, [loadedFileName, fileHandle]);
 
   const refresh = () => setNotes(storageService.getNotes());
 
@@ -41,6 +52,7 @@ export function useNotes() {
     setLoadedFileName(fileName);
     localStorage.setItem("reflection-notes-file-name", fileName);
     setHasUnsavedChanges(false);
+    setIsFileHandleLost(false); // Clear the lost flag when we get a new handle
   };
 
   // Save to disk file if loaded
@@ -51,6 +63,7 @@ export function useNotes() {
     }
     await fileSystemService.save(notes, fileHandle);
     setHasUnsavedChanges(false);
+    setIsFileHandleLost(false); // Clear the lost flag on successful save
   };
 
   // Load from disk file
@@ -76,8 +89,7 @@ export function useNotes() {
 
   // For saving to local file
   const saveToLocal = async () => {
-    if (!fileHandle) return;
-    await saveToDisk();
+    await saveToDisk(); // saveToDisk already handles the fileHandle check
   };
 
   // For loading a new file
@@ -88,6 +100,7 @@ export function useNotes() {
     setLoadedFileName(handle.name);
     localStorage.setItem("reflection-notes-file-name", handle.name);
     setHasUnsavedChanges(false);
+    setIsFileHandleLost(false); // Clear the lost flag when loading a file
   };
 
   return {
@@ -98,6 +111,7 @@ export function useNotes() {
     fileHandle,
     loadedFileName,
     hasUnsavedChanges,
+    isFileHandleLost,
     saveToDisk,
     saveAs,
     loadFromDisk,

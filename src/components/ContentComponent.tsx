@@ -47,20 +47,10 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
 
   const handleHeaderChange = (header: string) => {
     setEditHeader(header);
-    onUpdate({
-      id: content.id,
-      header: header,
-      content: editContent,
-    });
   };
 
   const handleContentChange = (value: string) => {
     setEditContent(value);
-    onUpdate({
-      id: content.id,
-      header: editHeader,
-      content: value,
-    });
   };
 
   return (
