@@ -34,31 +34,44 @@ export class BrowserFileSystemService implements IFileSystemService {
       throw new Error("File System Access API not supported");
     }
 
-    const handle = await window.showSaveFilePicker!({
-      types: [
-        {
-          description: "Reflection Notes JSON",
-          accept: { "application/json": [".json"] },
-        },
-      ],
-      excludeAcceptAllOption: true,
-    });
+    try {
+      const handle = await window.showSaveFilePicker!({
+        types: [
+          {
+            description: "Reflection Notes JSON",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+        excludeAcceptAllOption: true,
+      });
 
-    if (!handle) {
-      throw new Error("No file selected");
+      if (!handle) {
+        throw new Error("No file selected");
+      }
+
+      const jsonData = JSON.stringify(notes, null, 2);
+      const writable = await handle.createWritable();
+      await writable.write(jsonData);
+      await writable.close();
+
+      return { fileHandle: handle, fileName: handle.name };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error("File save was cancelled");
+      }
+      throw new Error(`Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    const writable = await handle.createWritable();
-    await writable.write(JSON.stringify(notes, null, 2));
-    await writable.close();
-
-    return { fileHandle: handle, fileName: handle.name };
   }
 
   async save(notes: Note[], fileHandle: FileSystemFileHandle): Promise<void> {
-    const writable = await fileHandle.createWritable();
-    await writable.write(JSON.stringify(notes, null, 2));
-    await writable.close();
+    try {
+      const jsonData = JSON.stringify(notes, null, 2);
+      const writable = await fileHandle.createWritable();
+      await writable.write(jsonData);
+      await writable.close();
+    } catch (error) {
+      throw new Error(`Failed to save to existing file: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    }
   }
 
   async load(): Promise<{ notes: Note[]; fileHandle: FileSystemFileHandle; fileName: string }> {
@@ -66,25 +79,43 @@ export class BrowserFileSystemService implements IFileSystemService {
       throw new Error("File System Access API not supported");
     }
 
-    const [fileHandle] = await window.showOpenFilePicker!({
-      types: [
-        {
-          description: "Reflection Notes JSON",
-          accept: { "application/json": [".json"] },
-        },
-      ],
-      excludeAcceptAllOption: true,
-      multiple: false,
-    });
+    try {
+      const [fileHandle] = await window.showOpenFilePicker!({
+        types: [
+          {
+            description: "Reflection Notes JSON",
+            accept: { "application/json": [".json"] },
+          },
+        ],
+        excludeAcceptAllOption: true,
+        multiple: false,
+      });
 
-    if (!fileHandle) {
-      throw new Error("No file selected");
+      if (!fileHandle) {
+        throw new Error("No file selected");
+      }
+
+      const file = await fileHandle.getFile();
+      const text = await file.text();
+      
+      let notes: Note[];
+      try {
+        notes = JSON.parse(text) as Note[];
+      } catch (parseError) {
+        throw new Error("Invalid JSON file format");
+      }
+
+      // Validate that the loaded data is an array of Note objects
+      if (!Array.isArray(notes)) {
+        throw new Error("File does not contain a valid array of notes");
+      }
+
+      return { notes, fileHandle, fileName: fileHandle.name };
+    } catch (error) {
+      if (error instanceof Error && error.name === 'AbortError') {
+        throw new Error("File selection was cancelled");
+      }
+      throw new Error(`Failed to load file: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
-
-    const file = await fileHandle.getFile();
-    const text = await file.text();
-    const notes = JSON.parse(text) as Note[];
-
-    return { notes, fileHandle, fileName: fileHandle.name };
   }
 }
