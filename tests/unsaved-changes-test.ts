@@ -50,7 +50,7 @@ const testFileLoadWarning = () => {
   };
   
   // Test with unsaved changes
-  const result = simulateLoad(true);
+  simulateLoad(true);
   console.log('✅ Warning shown for unsaved changes:', warnCalled);
   
   return warnCalled;

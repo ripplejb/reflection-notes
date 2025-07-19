@@ -101,7 +101,7 @@ export class BrowserFileSystemService implements IFileSystemService {
       let notes: Note[];
       try {
         notes = JSON.parse(text) as Note[];
-      } catch (parseError) {
+      } catch {
         throw new Error("Invalid JSON file format");
       }
 

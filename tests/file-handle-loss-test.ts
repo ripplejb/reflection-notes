@@ -25,7 +25,6 @@ const testFileHandleLossDetection = () => {
 const testUIIndication = () => {
   console.log('\n2. Testing UI Indication...');
   
-  const loadedFileName = "my-notes.json";
   const isFileHandleLost = true;
   
   // Test warning icon and message
