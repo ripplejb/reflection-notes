@@ -27,6 +27,10 @@ export const APP_CONSTANTS = {
   AUTOSAVE_INDICATOR: {
     SPINNER_CLASS: "animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600",
     TEXT: "Autosaving..."
+  },
+  TIMING: {
+    AUTOSAVE_DEBOUNCE_MS: 1000,
+    DROPDOWN_ANIMATION_MS: 150,
   }
 } as const;
 

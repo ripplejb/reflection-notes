@@ -1,10 +1,12 @@
 // Content editor component following SRP
-import React, { useMemo } from "react";
-import SimpleMDE from "react-simplemde-editor";
+import React, { useMemo, useCallback } from "react";
+import MDEditor from '@uiw/react-md-editor';
 import { FaEye } from "react-icons/fa";
 import { HeaderDropdown } from "./HeaderDropdown";
 import type { IConfigurationService } from "../services/ConfigurationService";
-import "easymde/dist/easymde.min.css";
+import { MARKDOWN_EDITOR_CONSTANTS } from "../constants/MarkdownEditorConstants";
+import '@uiw/react-md-editor/markdown-editor.css';
+import '@uiw/react-markdown-preview/markdown.css';
 
 interface ContentEditorProps {
   header: string;
@@ -25,6 +27,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
 }) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
 
+  // Memoized values for performance
   const predefinedHeaders = useMemo(
     () => configService.getPredefinedHeaders().map(h => ({ value: h, label: h })),
     [configService]
@@ -35,16 +38,29 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     [configService]
   );
 
-  const handleHeaderFocus = () => {
+  // Event handlers using useCallback for optimization
+  const handleHeaderFocus = useCallback(() => {
     if (!header.trim()) {
       setShowDropdown(true);
     }
-  };
+  }, [header]);
 
-  const handleHeaderSelect = (selectedHeader: string) => {
+  const handleHeaderSelect = useCallback((selectedHeader: string) => {
     onHeaderChange(selectedHeader);
     setShowDropdown(false);
-  };
+  }, [onHeaderChange]);
+
+  const handleContentChange = useCallback((val: string | undefined) => {
+    onContentChange(val || '');
+  }, [onContentChange]);
+
+  const handleDropdownToggle = useCallback(() => {
+    setShowDropdown(!showDropdown);
+  }, [showDropdown]);
+
+  const handleDropdownClose = useCallback(() => {
+    setShowDropdown(false);
+  }, []);
 
   return (
     <>
@@ -57,25 +73,30 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
             onValueChange={onHeaderChange}
             onFocus={handleHeaderFocus}
             isOpen={showDropdown}
-            onToggle={() => setShowDropdown(!showDropdown)}
-            onClose={() => setShowDropdown(false)}
+            onToggle={handleDropdownToggle}
+            onClose={handleDropdownClose}
           />
         </div>
         <div className="flex gap-2 ml-2">
           <button
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+            className={MARKDOWN_EDITOR_CONSTANTS.UI_CLASSES.BUTTON_PRIMARY}
             onClick={onViewMode}
-            aria-label="Switch to view mode"
+            aria-label={MARKDOWN_EDITOR_CONSTANTS.ACCESSIBILITY.VIEW_MODE_LABEL}
           >
             <FaEye />
           </button>
         </div>
       </div>
-      <SimpleMDE
-        value={content}
-        onChange={onContentChange}
-        options={contentOptions}
-      />
+      <div className={MARKDOWN_EDITOR_CONSTANTS.UI_CLASSES.CONTAINER}>
+        <MDEditor
+          value={content}
+          onChange={handleContentChange}
+          data-color-mode={MARKDOWN_EDITOR_CONSTANTS.DEFAULT_OPTIONS.COLOR_MODE}
+          preview={contentOptions.preview}
+          hideToolbar={contentOptions.hideToolbar}
+          height={contentOptions.height}
+        />
+      </div>
     </>
   );
 };

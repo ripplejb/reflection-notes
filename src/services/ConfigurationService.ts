@@ -1,57 +1,71 @@
-// Configuration service following OCP
+// Configuration service following SOLID principles with composition
+import type { 
+  MarkdownEditorOptions,
+  HeaderOption,
+  IHeaderProvider
+} from '../interfaces/ConfigurationInterfaces';
+import { HeaderProviderService } from './HeaderProviderService';
+import { EasyMDEService, type IMarkdownEditor } from './MarkdownEditorService';
+
+// Configuration service interface
 export interface IConfigurationService {
   getPredefinedHeaders(): string[];
-  getMarkdownOptions(): MarkdownOptions;
+  getMarkdownOptions(): MarkdownEditorOptions;
+  addPredefinedHeader(header: string): void;
+  removePredefinedHeader(header: string): void;
 }
 
-interface MarkdownOptions {
-  autofocus: boolean;
-  spellChecker: boolean;
-  placeholder: string;
-}
+// Re-export types for backward compatibility
+export type { MarkdownEditorOptions };
 
 export class ConfigurationService implements IConfigurationService {
-  private predefinedHeaders: string[] = [
-    "Goals",
-    "Achievements", 
-    "Gratitudes",
-    "Lessons Learned",
-    "Challenges Faced",
-    "Positive Moments",
-    "Personal Growth",
-    "Reflections",
-    "Action Items",
-    "Insights",
-    "Wins",
-    "Improvements",
-    "Inspiration",
-    "Progress Updates"
-  ];
+  private readonly headerProvider: IHeaderProvider;
+  private readonly markdownEditor: IMarkdownEditor;
+  private markdownOptions: MarkdownEditorOptions;
 
-  private markdownOptions: MarkdownOptions = {
-    autofocus: true,
-    spellChecker: false,
-    placeholder: "Write your notes in markdown...",
-  };
-
-  getPredefinedHeaders(): string[] {
-    return [...this.predefinedHeaders];
+  constructor(
+    headerProvider?: IHeaderProvider,
+    markdownEditor?: IMarkdownEditor
+  ) {
+    // Dependency injection with default implementations
+    this.headerProvider = headerProvider ?? new HeaderProviderService();
+    this.markdownEditor = markdownEditor ?? new EasyMDEService();
+    this.markdownOptions = this.markdownEditor.getDefaultOptions();
   }
 
-  getMarkdownOptions(): MarkdownOptions {
-    return { ...this.markdownOptions };
+  // Header management delegation
+  getPredefinedHeaders(): string[] {
+    return this.headerProvider.getPredefinedHeaders();
+  }
+
+  getPredefinedHeaderOptions(): HeaderOption[] {
+    return this.headerProvider.getPredefinedHeaders().map((h: string) => ({ value: h, label: h }));
   }
 
   addPredefinedHeader(header: string): void {
-    if (!this.predefinedHeaders.includes(header)) {
-      this.predefinedHeaders.push(header);
-    }
+    this.headerProvider.addPredefinedHeader(header);
   }
 
   removePredefinedHeader(header: string): void {
-    const index = this.predefinedHeaders.indexOf(header);
-    if (index > -1) {
-      this.predefinedHeaders.splice(index, 1);
+    this.headerProvider.removePredefinedHeader(header);
+  }
+
+  // Markdown options management
+  getMarkdownOptions(): MarkdownEditorOptions {
+    return { ...this.markdownOptions };
+  }
+
+  updateMarkdownOptions(options: Partial<MarkdownEditorOptions>): void {
+    const updatedOptions = { ...this.markdownOptions, ...options };
+    
+    if (this.markdownEditor.validateOptions(updatedOptions)) {
+      this.markdownOptions = updatedOptions;
+    } else {
+      throw new Error('Invalid markdown editor options provided');
     }
+  }
+
+  resetMarkdownOptions(): void {
+    this.markdownOptions = this.markdownEditor.getDefaultOptions();
   }
 }

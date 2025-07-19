@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { ContentViewer } from "./ContentViewer";
 import { ContentEditor } from "./ContentEditor";
 import { serviceContainer } from "../services/ServiceContainer";
+import { APP_CONSTANTS } from "../constants/AppConstants";
 
 interface Content {
   id: string;
@@ -45,7 +46,7 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
           header: editHeader,
           content: editContent,
         });
-      }, 1000); // 1 second debounce
+      }, APP_CONSTANTS.TIMING.AUTOSAVE_DEBOUNCE_MS); // Configurable autosave debounce
     }
 
     // Cleanup timeout
