@@ -1,7 +1,7 @@
 // Content editor component following SRP
 import React, { useMemo } from "react";
 import SimpleMDE from "react-simplemde-editor";
-import { FaCheck, FaTimes } from "react-icons/fa";
+import { FaEye } from "react-icons/fa";
 import { HeaderDropdown } from "./HeaderDropdown";
 import type { IConfigurationService } from "../services/ConfigurationService";
 import "easymde/dist/easymde.min.css";
@@ -12,8 +12,7 @@ interface ContentEditorProps {
   configService: IConfigurationService;
   onHeaderChange: (header: string) => void;
   onContentChange: (content: string) => void;
-  onSave: () => void;
-  onCancel: () => void;
+  onViewMode: () => void;
 }
 
 export const ContentEditor: React.FC<ContentEditorProps> = ({
@@ -22,8 +21,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   configService,
   onHeaderChange,
   onContentChange,
-  onSave,
-  onCancel,
+  onViewMode,
 }) => {
   const [showDropdown, setShowDropdown] = React.useState(false);
 
@@ -65,18 +63,11 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
         </div>
         <div className="flex gap-2 ml-2">
           <button
-            className="text-green-600 hover:text-green-800"
-            onClick={onSave}
-            aria-label="Save content"
+            className="text-blue-600 hover:text-blue-800 flex items-center gap-1 text-sm"
+            onClick={onViewMode}
+            aria-label="Switch to view mode"
           >
-            <FaCheck />
-          </button>
-          <button
-            className="text-gray-500 hover:text-red-600"
-            onClick={onCancel}
-            aria-label="Cancel edit"
-          >
-            <FaTimes />
+            <FaEye />
           </button>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import type { Note } from "../models/Note";
 import { serviceContainer } from "../services/ServiceContainer";
 
@@ -18,6 +18,48 @@ export function useNotes() {
   });
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isFileHandleLost, setIsFileHandleLost] = useState(false);
+  const [isAutoSaving, setIsAutoSaving] = useState(false);
+
+  // Debounce timer for autosave
+  const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Autosave function with debouncing
+  const autosave = useCallback(async (notesToSave: Note[]) => {
+    // Clear existing timeout
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+    }
+
+    // Set new timeout for debounced autosave
+    autosaveTimeoutRef.current = setTimeout(async () => {
+      try {
+        setIsAutoSaving(true);
+        
+        if (fileHandle && !isFileHandleLost) {
+          // Save to file if we have a valid file handle
+          await fileSystemService.save(notesToSave, fileHandle);
+          setHasUnsavedChanges(false);
+        } else {
+          // Save to localStorage (already done in addOrUpdateNote/deleteNote)
+          // No need to set hasUnsavedChanges to false for localStorage
+        }
+      } catch (error) {
+        console.warn("Autosave failed:", error);
+        setHasUnsavedChanges(true);
+      } finally {
+        setIsAutoSaving(false);
+      }
+    }, 2000); // 2 second debounce
+  }, [fileHandle, isFileHandleLost, fileSystemService]);
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // Check if fileHandle is lost after page reload
   useEffect(() => {
@@ -35,14 +77,28 @@ export function useNotes() {
     const updated = notes.filter((n) => n.date !== note.date).concat(note);
     storageService.saveNotes(updated);
     setNotes(updated);
-    setHasUnsavedChanges(true);
+    
+    if (fileHandle && !isFileHandleLost) {
+      // Trigger autosave for file
+      autosave(updated);
+    } else {
+      // For localStorage, data is already saved above
+      setHasUnsavedChanges(true);
+    }
   };
 
   const deleteNote = (date: string) => {
     const updated = notes.filter((n) => n.date !== date);
     storageService.saveNotes(updated);
     setNotes(updated);
-    setHasUnsavedChanges(true);
+    
+    if (fileHandle && !isFileHandleLost) {
+      // Trigger autosave for file
+      autosave(updated);
+    } else {
+      // For localStorage, data is already saved above
+      setHasUnsavedChanges(true);
+    }
   };
 
   // Save as new file
@@ -140,6 +196,7 @@ export function useNotes() {
     loadedFileName,
     hasUnsavedChanges,
     isFileHandleLost,
+    isAutoSaving,
     saveToDisk,
     saveAs,
     loadFromDisk,

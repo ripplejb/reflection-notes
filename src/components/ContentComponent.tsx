@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { ContentViewer } from "./ContentViewer";
 import { ContentEditor } from "./ContentEditor";
 import { serviceContainer } from "../services/ServiceContainer";
@@ -20,9 +20,41 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
   onUpdate,
   onDelete,
 }) => {
-  const [mode, setMode] = useState<"view" | "edit">("view");
+  // Start in edit mode if content is empty (new content)
+  const initialMode = (!content.header.trim() && !content.content.trim()) ? "edit" : "view";
+  const [mode, setMode] = useState<"view" | "edit">(initialMode);
   const [editHeader, setEditHeader] = useState(content.header);
   const [editContent, setEditContent] = useState(content.content);
+  
+  // Debounce timer for autosave
+  const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Auto-save changes with debouncing
+  useEffect(() => {
+    // Only autosave if we're in edit mode and the content has actually changed
+    if (mode === "edit" && (editHeader !== content.header || editContent !== content.content)) {
+      // Clear existing timeout
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+
+      // Set new timeout for debounced autosave
+      autosaveTimeoutRef.current = setTimeout(() => {
+        onUpdate({
+          id: content.id,
+          header: editHeader,
+          content: editContent,
+        });
+      }, 1000); // 1 second debounce
+    }
+
+    // Cleanup timeout
+    return () => {
+      if (autosaveTimeoutRef.current) {
+        clearTimeout(autosaveTimeoutRef.current);
+      }
+    };
+  }, [editHeader, editContent, content.header, content.content, content.id, onUpdate, mode]);
 
   const handleEdit = () => {
     setEditHeader(content.header);
@@ -30,18 +62,15 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
     setMode("edit");
   };
 
-  const handleSave = () => {
-    onUpdate({
-      id: content.id,
-      header: editHeader,
-      content: editContent,
-    });
-    setMode("view");
-  };
-
-  const handleCancel = () => {
-    setEditHeader(content.header);
-    setEditContent(content.content);
+  const handleViewMode = () => {
+    // Save any pending changes before switching to view mode
+    if (editHeader !== content.header || editContent !== content.content) {
+      onUpdate({
+        id: content.id,
+        header: editHeader,
+        content: editContent,
+      });
+    }
     setMode("view");
   };
 
@@ -70,8 +99,7 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
           configService={serviceContainer.configurationService}
           onHeaderChange={handleHeaderChange}
           onContentChange={handleContentChange}
-          onSave={handleSave}
-          onCancel={handleCancel}
+          onViewMode={handleViewMode}
         />
       )}
     </div>

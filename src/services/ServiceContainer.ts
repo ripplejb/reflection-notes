@@ -4,6 +4,7 @@ import { BrowserFileSystemService, type IFileSystemService } from "./FileSystemS
 import { MarkdownProcessor, type IMarkdownProcessor } from "./MarkdownProcessor";
 import { ConfigurationService, type IConfigurationService } from "./ConfigurationService";
 import { FilterService, type IFilterService } from "./FilterService";
+import { NoteOperationsService, type INoteOperationsService } from "./NoteOperationsService";
 
 export interface IServiceContainer {
   storageService: IStorageService;
@@ -11,6 +12,7 @@ export interface IServiceContainer {
   markdownProcessor: IMarkdownProcessor;
   configurationService: IConfigurationService;
   filterService: IFilterService;
+  noteOperationsService: INoteOperationsService;
 }
 
 export class ServiceContainer implements IServiceContainer {
@@ -19,6 +21,7 @@ export class ServiceContainer implements IServiceContainer {
   public readonly markdownProcessor: IMarkdownProcessor;
   public readonly configurationService: IConfigurationService;
   public readonly filterService: IFilterService;
+  public readonly noteOperationsService: INoteOperationsService;
 
   constructor() {
     this.storageService = new LocalStorageService();
@@ -26,6 +29,7 @@ export class ServiceContainer implements IServiceContainer {
     this.markdownProcessor = new MarkdownProcessor();
     this.configurationService = new ConfigurationService();
     this.filterService = new FilterService();
+    this.noteOperationsService = new NoteOperationsService();
   }
 }
 
