@@ -1,102 +1,112 @@
 // Content editor component following SRP
-import React, { useMemo, useCallback } from "react";
+import React, { useCallback, useState, useEffect } from "react";
 import MDEditor from '@uiw/react-md-editor';
 import { FaEye } from "react-icons/fa";
 import { HeaderDropdown } from "./HeaderDropdown";
 import type { IConfigurationService } from "../services/ConfigurationService";
-import { MARKDOWN_EDITOR_CONSTANTS } from "../constants/MarkdownEditorConstants";
+import type { Theme } from "../services/ThemeService";
 import '@uiw/react-md-editor/markdown-editor.css';
 import '@uiw/react-markdown-preview/markdown.css';
 
 interface ContentEditorProps {
   header: string;
   content: string;
-  configService: IConfigurationService;
+  configurationService: IConfigurationService;
   onHeaderChange: (header: string) => void;
-  onContentChange: (content: string) => void;
+  onContentChange: (value?: string) => void;
   onViewMode: () => void;
 }
 
-export const ContentEditor: React.FC<ContentEditorProps> = ({
+export const ContentEditor: React.FC<ContentEditorProps> = ({ 
   header,
   content,
-  configService,
+  configurationService,
   onHeaderChange,
   onContentChange,
-  onViewMode,
+  onViewMode
 }) => {
-  const [showDropdown, setShowDropdown] = React.useState(false);
-
-  // Memoized values for performance
-  const predefinedHeaders = useMemo(
-    () => configService.getPredefinedHeaders().map(h => ({ value: h, label: h })),
-    [configService]
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
+    configurationService.getThemeService().getCurrentTheme()
   );
 
-  const contentOptions = useMemo(
-    () => configService.getMarkdownOptions(),
-    [configService]
+  // Header dropdown state
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [predefinedHeaders] = useState(() => 
+    configurationService.getPredefinedHeaders().map(h => ({ value: h, label: h }))
   );
 
-  // Event handlers using useCallback for optimization
-  const handleHeaderFocus = useCallback(() => {
-    if (!header.trim()) {
-      setShowDropdown(true);
-    }
-  }, [header]);
+  useEffect(() => {
+    const themeService = configurationService.getThemeService();
+    
+    // Subscribe to theme changes
+    const unsubscribe = themeService.onThemeChange((theme) => {
+      setCurrentTheme(theme);
+    });
+    
+    return unsubscribe;
+  }, [configurationService]);
 
-  const handleHeaderSelect = useCallback((selectedHeader: string) => {
-    onHeaderChange(selectedHeader);
-    setShowDropdown(false);
-  }, [onHeaderChange]);
-
-  const handleContentChange = useCallback((val: string | undefined) => {
-    onContentChange(val || '');
+  const handleContentChange = useCallback((newValue?: string) => {
+    onContentChange(newValue || "");
   }, [onContentChange]);
 
-  const handleDropdownToggle = useCallback(() => {
-    setShowDropdown(!showDropdown);
-  }, [showDropdown]);
+  const handleHeaderSelect = (selectedHeader: string) => {
+    onHeaderChange(selectedHeader);
+    setIsDropdownOpen(false);
+  };
 
-  const handleDropdownClose = useCallback(() => {
-    setShowDropdown(false);
-  }, []);
+  const colorMode = currentTheme === 'dark' ? 'dark' : 'light';
 
   return (
-    <>
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex-1 flex items-center gap-2">
-          <HeaderDropdown
-            value={header}
-            options={predefinedHeaders}
-            onSelect={handleHeaderSelect}
-            onValueChange={onHeaderChange}
-            onFocus={handleHeaderFocus}
-            isOpen={showDropdown}
-            onToggle={handleDropdownToggle}
-            onClose={handleDropdownClose}
+    <div className={`rounded-lg shadow-sm ${
+      currentTheme === 'dark' ? 'bg-gray-800' : 'bg-white'
+    }`} data-color-mode={colorMode}>
+      <div className={`flex items-center justify-between p-3 border-b ${
+        currentTheme === 'dark' 
+          ? 'bg-gray-800 text-gray-200 border-gray-700' 
+          : 'bg-gray-50 text-gray-700 border-gray-200'
+      }`}>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">Content Editor</span>
+        </div>
+        <button
+          onClick={onViewMode}
+          className={`p-1 rounded hover:bg-opacity-80 ${
+            currentTheme === 'dark' 
+              ? 'text-gray-300 hover:bg-gray-700' 
+              : 'text-gray-600 hover:bg-gray-200'
+          }`}
+          aria-label="Switch to view mode"
+        >
+          <FaEye size={16} />
+        </button>
+      </div>
+      <div className={`p-3 space-y-3 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+        <HeaderDropdown
+          value={header}
+          options={predefinedHeaders}
+          onSelect={handleHeaderSelect}
+          onValueChange={onHeaderChange}
+          onFocus={() => {}}
+          placeholder="Header or select from dropdown"
+          isOpen={isDropdownOpen}
+          onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+          onClose={() => setIsDropdownOpen(false)}
+          theme={currentTheme}
+        />
+        <div className={`rounded overflow-hidden ${
+          currentTheme === 'dark' ? 'border border-gray-600' : 'border border-gray-300'
+        }`}>
+          <MDEditor
+            value={content}
+            onChange={handleContentChange}
+            height={300}
+            preview="edit"
+            hideToolbar={false}
+            data-color-mode={colorMode}
           />
         </div>
-        <div className="flex gap-2 ml-2">
-          <button
-            className={MARKDOWN_EDITOR_CONSTANTS.UI_CLASSES.BUTTON_PRIMARY}
-            onClick={onViewMode}
-            aria-label={MARKDOWN_EDITOR_CONSTANTS.ACCESSIBILITY.VIEW_MODE_LABEL}
-          >
-            <FaEye />
-          </button>
-        </div>
       </div>
-      <div className={MARKDOWN_EDITOR_CONSTANTS.UI_CLASSES.CONTAINER}>
-        <MDEditor
-          value={content}
-          onChange={handleContentChange}
-          data-color-mode={MARKDOWN_EDITOR_CONSTANTS.DEFAULT_OPTIONS.COLOR_MODE}
-          preview={contentOptions.preview}
-          hideToolbar={contentOptions.hideToolbar}
-          height={contentOptions.height}
-        />
-      </div>
-    </>
+    </div>
   );
 };

@@ -2,11 +2,13 @@ import React, { useState } from "react";
 
 import DatePicker from "react-datepicker";
 import { FaEdit, FaCheck, FaTimes } from "react-icons/fa";
+import type { Theme } from "../services/ThemeService";
 import "react-datepicker/dist/react-datepicker.css";
 
 interface DateComponentProps {
   date: string; // "YYYYMMDD"
   selected: boolean;
+  theme?: Theme;
   onSelect: (date: string) => void;
   onUpdate: (newDate: string) => void;
   onDelete: () => void;
@@ -32,6 +34,7 @@ export const DateComponent: React.FC<
 > = ({
   date,
   selected,
+  theme = 'light',
   onSelect,
   onUpdate,
   onDelete,
@@ -94,19 +97,29 @@ export const DateComponent: React.FC<
     <div
       className={`flex items-center justify-between p-2 rounded cursor-pointer ${
         selected
-          ? "bg-blue-100 border-l-4 border-blue-500"
-          : "hover:bg-gray-100"
+          ? theme === 'dark'
+            ? "bg-blue-800 border-l-4 border-blue-400 text-gray-100"
+            : "bg-blue-100 border-l-4 border-blue-500"
+          : theme === 'dark'
+            ? "hover:bg-gray-700 text-gray-200"
+            : "hover:bg-gray-100"
       }`}
       onClick={() => mode === "view" && onSelect(date)}
     >
       {mode === "view" ? (
         <>
-          <span className="text-lg">
+          <span className={`text-lg ${
+            theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+          }`}>
             {date === "new" ? "Set date..." : formatDisplay(date)}
           </span>
           <div className="flex gap-2">
             <button
-              className="text-gray-500 hover:text-blue-600"
+              className={`${
+                theme === 'dark' 
+                  ? 'text-gray-400 hover:text-blue-400' 
+                  : 'text-gray-500 hover:text-blue-600'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleEdit();
@@ -116,7 +129,11 @@ export const DateComponent: React.FC<
               <FaEdit />
             </button>
             <button
-              className="text-gray-500 hover:text-red-600"
+              className={`${
+                theme === 'dark' 
+                  ? 'text-gray-400 hover:text-red-400' 
+                  : 'text-gray-500 hover:text-red-600'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 onDelete();
@@ -136,12 +153,20 @@ export const DateComponent: React.FC<
               setError(null);
             }}
             dateFormat="yyyy-MM-dd"
-            className="border rounded px-2 py-1"
+            className={`border rounded px-2 py-1 ${
+              theme === 'dark' 
+                ? 'bg-gray-700 border-gray-600 text-gray-100' 
+                : 'bg-white border-gray-300 text-gray-900'
+            }`}
             autoFocus
           />
           <div className="flex gap-2">
             <button
-              className="text-green-600 hover:text-green-800"
+              className={`${
+                theme === 'dark' 
+                  ? 'text-green-400 hover:text-green-300' 
+                  : 'text-green-600 hover:text-green-800'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleSave();
@@ -151,7 +176,11 @@ export const DateComponent: React.FC<
               <FaCheck />
             </button>
             <button
-              className="text-gray-500 hover:text-red-600"
+              className={`${
+                theme === 'dark' 
+                  ? 'text-gray-400 hover:text-red-400' 
+                  : 'text-gray-500 hover:text-red-600'
+              }`}
               onClick={(e) => {
                 e.stopPropagation();
                 handleCancel();
@@ -161,7 +190,9 @@ export const DateComponent: React.FC<
               <FaTimes />
             </button>
           </div>
-          {error && <span className="text-red-500 ml-2">{error}</span>}
+          {error && <span className={`ml-2 ${
+            theme === 'dark' ? 'text-red-400' : 'text-red-500'
+          }`}>{error}</span>}
         </>
       )}
     </div>

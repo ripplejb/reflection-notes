@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AppHeader } from "./AppHeader";
 import { DatesSection } from "./DatesSection";
 import { ContentsSection } from "./ContentsSection";
@@ -10,8 +10,23 @@ import type { Content } from "../models/Note";
 import { serviceContainer } from "../services/ServiceContainer";
 import { UIUtils } from "../utils/UIUtils";
 import { APP_CONSTANTS } from "../constants/AppConstants";
+import type { Theme } from "../services/ThemeService";
 
 export const MainPage: React.FC = () => {
+  // Theme state management
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
+    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  );
+
+  // Setup theme subscription
+  useEffect(() => {
+    const themeService = serviceContainer.configurationService.getThemeService();
+    const unsubscribe = themeService.onThemeChange((theme) => {
+      setCurrentTheme(theme);
+    });
+    return unsubscribe;
+  }, []);
+
   // Hooks for data and state management
   const {
     notes,
@@ -50,32 +65,20 @@ export const MainPage: React.FC = () => {
     isFileHandleLost
   });
 
-  // Computed values using services
-  const filteredNotes = serviceContainer.filterService.filterByDateRange(
-    notes, 
-    dateRangeFilter.startDate, 
-    dateRangeFilter.endDate
-  );
+  // Apply filters to notes
+  const filteredNotes = notes.filter((note) => {
+    const { startDate, endDate } = dateRangeFilter;
+    if (!startDate && !endDate) return true;
+    
+    const noteDate = new Date(note.date);
+    const start = startDate ? new Date(startDate) : null;
+    const end = endDate ? new Date(endDate) : null;
+    
+    return (!start || noteDate >= start) && (!end || noteDate <= end);
+  });
 
-  // Event handlers following clean code principles
   const handleDateRangeFilterChange = (startDate: string | null, endDate: string | null) => {
     setDateRangeFilter({ startDate, endDate });
-    
-    if (startDate || endDate) {
-      const firstNoteInRange = serviceContainer.filterService.findFirstNoteInRange(
-        notes, 
-        startDate, 
-        endDate
-      );
-      
-      const isSelectedInRange = selectedNote 
-        ? serviceContainer.filterService.isNoteInDateRange(selectedNote, startDate, endDate)
-        : false;
-      
-      if (!isSelectedInRange && firstNoteInRange) {
-        setSelectedDate(firstNoteInRange.date);
-      }
-    }
   };
 
   const handleAddDate = () => {
@@ -126,9 +129,7 @@ export const MainPage: React.FC = () => {
   };
 
   const handleDeleteContent = (id: string) => {
-    if (UIUtils.confirmDeleteContent()) {
-      if (!selectedNote) return;
-      
+    if (selectedNote && UIUtils.confirmDeleteContent()) {
       const updatedNote = serviceContainer.noteOperationsService.removeContentFromNote(
         selectedNote, 
         id
@@ -138,9 +139,10 @@ export const MainPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={`min-h-screen transition-colors duration-200 ${
+      currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
+    }`}>
       <AppHeader
-        notes={notes}
         isAutoSaving={isAutoSaving}
         loadedFileName={loadedFileName}
         hasUnsavedChanges={hasUnsavedChanges}

@@ -3,6 +3,7 @@ import { ContentViewer } from "./ContentViewer";
 import { ContentEditor } from "./ContentEditor";
 import { serviceContainer } from "../services/ServiceContainer";
 import { APP_CONSTANTS } from "../constants/AppConstants";
+import type { Theme } from "../services/ThemeService";
 
 interface Content {
   id: string;
@@ -21,6 +22,19 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
   onUpdate,
   onDelete,
 }) => {
+  // Theme state
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
+    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  );
+
+  useEffect(() => {
+    const themeService = serviceContainer.configurationService.getThemeService();
+    const unsubscribe = themeService.onThemeChange((theme) => {
+      setCurrentTheme(theme);
+    });
+    return unsubscribe;
+  }, []);
+
   // Start in edit mode if content is empty (new content)
   const initialMode = (!content.header.trim() && !content.content.trim()) ? "edit" : "view";
   const [mode, setMode] = useState<"view" | "edit">(initialMode);
@@ -79,12 +93,16 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
     setEditHeader(header);
   };
 
-  const handleContentChange = (value: string) => {
-    setEditContent(value);
+  const handleContentChange = (value?: string) => {
+    setEditContent(value || "");
   };
 
   return (
-    <div className="bg-white rounded shadow p-4 mb-4">
+    <div className={`rounded shadow p-4 mb-4 ${
+      currentTheme === 'dark' 
+        ? 'bg-gray-800 border border-gray-700' 
+        : 'bg-white'
+    }`}>
       {mode === "view" ? (
         <ContentViewer
           header={content.header}
@@ -97,7 +115,7 @@ export const ContentComponent: React.FC<ContentComponentProps> = ({
         <ContentEditor
           header={editHeader}
           content={editContent}
-          configService={serviceContainer.configurationService}
+          configurationService={serviceContainer.configurationService}
           onHeaderChange={handleHeaderChange}
           onContentChange={handleContentChange}
           onViewMode={handleViewMode}

@@ -71,16 +71,16 @@ export const DiskStorageControls: React.FC<DiskStorageControlsProps> = ({
 
   return (
     <div className="flex flex-col items-end gap-1">
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center h-10">
         <button
-          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 px-3 py-2 rounded border border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed min-w-[100px] justify-center"
+          className="text-blue-600 hover:text-blue-800 flex items-center gap-1 px-3 py-2 rounded border border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200 disabled:cursor-not-allowed min-w-[100px] justify-center h-full"
           onClick={handleLoad}
           disabled={loading}
         >
           <FaFolderOpen /> Load
         </button>
         <button
-          className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[100px] justify-center disabled:cursor-not-allowed ${
+          className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[100px] justify-center disabled:cursor-not-allowed h-full ${
             hasUnsavedChanges 
               ? "text-orange-600 hover:text-orange-800 border-orange-200 hover:border-orange-300 disabled:text-gray-400 disabled:border-gray-200" 
               : "text-blue-600 hover:text-blue-800 border-blue-200 hover:border-blue-300 disabled:text-gray-400 disabled:border-gray-200"

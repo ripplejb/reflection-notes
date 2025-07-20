@@ -1,12 +1,14 @@
 // Dates section component following SRP
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { DateComponent } from './DateComponent';
 import { DateRangeFilter } from './DateRangeFilter';
 import { DateUtils } from '../utils/DateUtils';
 import { UIUtils } from '../utils/UIUtils';
 import { APP_CONSTANTS } from '../constants/AppConstants';
+import { serviceContainer } from '../services/ServiceContainer';
 import type { Note } from '../models/Note';
+import type { Theme } from '../services/ThemeService';
 
 interface DatesSectionProps {
   filteredNotes: Note[];
@@ -32,6 +34,18 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
   onAddDate,
   onDateRangeFilterChange,
 }) => {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
+    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  );
+
+  useEffect(() => {
+    const themeService = serviceContainer.configurationService.getThemeService();
+    const unsubscribe = themeService.onThemeChange((theme) => {
+      setCurrentTheme(theme);
+    });
+    return unsubscribe;
+  }, []);
+
   const isFilterActive = UIUtils.isFilterActive(dateRangeFilter.startDate, dateRangeFilter.endDate);
   const hasNoFilteredResults = filteredNotes.length === 0 && isFilterActive;
   const sortedFilteredNotes = DateUtils.sortNotesByDateDesc(filteredNotes);
@@ -39,14 +53,20 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
   return (
     <section className="w-1/4">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-semibold text-lg">Dates</h2>
+        <h2 className={`font-semibold text-lg ${
+          currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+        }`}>Dates</h2>
         <div className="flex items-center gap-2">
           <DateRangeFilter
             onFilterChange={onDateRangeFilterChange}
             isActive={isFilterActive}
           />
           <button
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className={`flex items-center gap-1 ${
+              currentTheme === 'dark' 
+                ? 'text-blue-400 hover:text-blue-300' 
+                : 'text-blue-600 hover:text-blue-800'
+            }`}
             onClick={onAddDate}
             aria-label="Add date"
           >
@@ -56,7 +76,9 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
       </div>
       
       {hasNoFilteredResults ? (
-        <div className="text-gray-500 text-sm py-4 text-center">
+        <div className={`text-sm py-4 text-center ${
+          currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+        }`}>
           {APP_CONSTANTS.UI_MESSAGES.NO_DATES_IN_RANGE}
         </div>
       ) : (
@@ -66,6 +88,7 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
               key={note.date}
               date={note.date}
               selected={note.date === selectedDate}
+              theme={currentTheme}
               onSelect={onDateSelect}
               onUpdate={(newDate) => onDateUpdate(note.date, newDate)}
               onDelete={() => onDateDelete(note.date)}

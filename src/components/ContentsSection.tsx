@@ -1,10 +1,12 @@
 // Contents section component following SRP
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { ContentComponent } from './ContentComponent';
 import { DateUtils } from '../utils/DateUtils';
 import { APP_CONSTANTS } from '../constants/AppConstants';
+import { serviceContainer } from '../services/ServiceContainer';
 import type { Note, Content } from '../models/Note';
+import type { Theme } from '../services/ThemeService';
 
 interface ContentsSectionProps {
   selectedNote: Note | undefined;
@@ -19,6 +21,18 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   onUpdateContent,
   onDeleteContent,
 }) => {
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
+    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  );
+
+  useEffect(() => {
+    const themeService = serviceContainer.configurationService.getThemeService();
+    const unsubscribe = themeService.onThemeChange((theme) => {
+      setCurrentTheme(theme);
+    });
+    return unsubscribe;
+  }, []);
+
   const getFormattedDateHeader = () => {
     if (!selectedNote) return APP_CONSTANTS.UI_MESSAGES.NO_DATE_SELECTED;
     return `Contents for ${DateUtils.formatDateForDisplay(selectedNote.date)}`;
@@ -29,12 +43,18 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   return (
     <section className="flex-1">
       <div className="flex justify-between items-center mb-2">
-        <h2 className="font-semibold text-lg">
+        <h2 className={`font-semibold text-lg ${
+          currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
+        }`}>
           {getFormattedDateHeader()}
         </h2>
         {selectedNote && (
           <button
-            className="text-blue-600 hover:text-blue-800 flex items-center gap-1"
+            className={`flex items-center gap-1 ${
+              currentTheme === 'dark' 
+                ? 'text-blue-400 hover:text-blue-300' 
+                : 'text-blue-600 hover:text-blue-800'
+            }`}
             onClick={onAddContent}
             aria-label="Add content"
           >
@@ -54,12 +74,16 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
             />
           ))
         ) : (
-          <div className="text-gray-500">
+          <div className={`${
+            currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
+          }`}>
             {APP_CONSTANTS.UI_MESSAGES.NO_CONTENTS_FOR_DATE}
           </div>
         )
       ) : (
-        <div className="text-gray-400">
+        <div className={`${
+          currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-400'
+        }`}>
           {APP_CONSTANTS.UI_MESSAGES.NO_DATE_SELECTED}
         </div>
       )}

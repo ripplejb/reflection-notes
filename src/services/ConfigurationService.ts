@@ -6,6 +6,7 @@ import type {
 } from '../interfaces/ConfigurationInterfaces';
 import { HeaderProviderService } from './HeaderProviderService';
 import { EasyMDEService, type IMarkdownEditor } from './MarkdownEditorService';
+import { ThemeService, type IThemeService, type Theme } from './ThemeService';
 
 // Configuration service interface
 export interface IConfigurationService {
@@ -13,23 +14,27 @@ export interface IConfigurationService {
   getMarkdownOptions(): MarkdownEditorOptions;
   addPredefinedHeader(header: string): void;
   removePredefinedHeader(header: string): void;
+  getThemeService(): IThemeService;
 }
 
 // Re-export types for backward compatibility
-export type { MarkdownEditorOptions };
+export type { MarkdownEditorOptions, Theme };
 
 export class ConfigurationService implements IConfigurationService {
   private readonly headerProvider: IHeaderProvider;
   private readonly markdownEditor: IMarkdownEditor;
+  private readonly themeService: IThemeService;
   private markdownOptions: MarkdownEditorOptions;
 
   constructor(
     headerProvider?: IHeaderProvider,
-    markdownEditor?: IMarkdownEditor
+    markdownEditor?: IMarkdownEditor,
+    themeService?: IThemeService
   ) {
     // Dependency injection with default implementations
     this.headerProvider = headerProvider ?? new HeaderProviderService();
     this.markdownEditor = markdownEditor ?? new EasyMDEService();
+    this.themeService = themeService ?? new ThemeService();
     this.markdownOptions = this.markdownEditor.getDefaultOptions();
   }
 
@@ -67,5 +72,10 @@ export class ConfigurationService implements IConfigurationService {
 
   resetMarkdownOptions(): void {
     this.markdownOptions = this.markdownEditor.getDefaultOptions();
+  }
+
+  // Theme management delegation
+  getThemeService(): IThemeService {
+    return this.themeService;
   }
 }
