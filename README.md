@@ -2,7 +2,7 @@
 
 **🛡️ Your Thoughts. Your Device. Your Privacy. Your Encryption.**
 
-> *A revolutionary React application that transforms how you create, manage, and protect your personal reflections. Built with enterprise-level SOLID architecture and military-grade encryption, this app ensures your most intimate thoughts remain completely private while delivering a world-class journaling experience.*
+> *A revolutionary journaling application that transforms how you create, manage, and protect your personal reflections. With military-grade encryption and complete privacy protection, your most intimate thoughts remain exactly where they belong - with you.*
 
 ---
 
@@ -16,9 +16,9 @@ In an age where personal data is currency and privacy is luxury, **Reflection No
 - **Security Vulnerabilities**: Centralized storage makes your private thoughts targets for breaches
 - **Trust Deficit**: You shouldn't have to choose between convenience and privacy
 
-### 🛡️ **Our Solution: Privacy-First Architecture**
+### 🛡️ **Our Solution: True Privacy**
 - **🏠 Local-Only by Design**: Your reflections never leave your device unless YOU decide
-- **🔐 Military-Grade Encryption**: AES-GCM with PBKDF2 key derivation (100,000 iterations)
+- **🔐 Military-Grade Encryption**: Bank-level security protects your most private thoughts
 - **🔑 Password-Protected Files**: Each file can have its own unique encryption password
 - **📱 Zero Trust Model**: No accounts, no servers, no surveillance - just pure privacy
 - **🌐 Offline-First**: Write, reflect, and grow completely disconnected from the internet
@@ -38,9 +38,9 @@ In an age where personal data is currency and privacy is luxury, **Reflection No
 ## 🔥 **Revolutionary Features**
 
 ### 🔐 **File-Level Encryption System**
-*NEW: Enterprise-grade security for your most private thoughts*
+*Bank-level security for your most private thoughts*
 
-- **🔒 AES-GCM Encryption**: Military-standard encryption with authenticated decryption
+- **🔒 Military-Standard Encryption**: Your files are protected with the same encryption used by banks and governments
 - **🔑 Individual File Passwords**: Each reflection file can have its own unique protection
 - **⚡ Instant Encryption**: Seamless save-with-encryption workflow
 - **🛡️ Security by Design**: Password required every time you load an encrypted file
@@ -63,13 +63,13 @@ This is intentional - it's the only way to guarantee true privacy.
 - **✨ Smooth Animations**: Delightful transitions between themes
 
 ### 📝 **Professional Markdown Editor**
-*Write with the tools professionals use*
+*Write with beautiful formatting*
 
-- **⚡ EasyMDE Integration**: Industry-standard markdown editor with live preview
+- **⚡ Advanced Editor**: Professional-grade markdown editor with live preview
 - **🎨 Rich Formatting**: Full markdown syntax with beautiful rendering
 - **👁️ Multi-Mode Editing**: Edit, Live Preview, and Read-only modes
 - **⌨️ Smart Shortcuts**: Professional toolbar with keyboard shortcuts
-- **🚀 Performance Optimized**: React hooks with advanced memoization
+- **🚀 Lightning Fast**: Optimized for smooth writing experience
 
 ### 🧠 **Intelligent Note Organization**
 
@@ -105,10 +105,9 @@ This is intentional - it's the only way to guarantee true privacy.
 
 ---
 
-## 🏗️ **Enterprise Architecture**
+## 🛠️ **Technology Stack**
 
-### 🎯 **SOLID Principles Mastery**
-*Why enterprise architecture matters for your personal app*
+### **Modern & Secure**
 
 #### **🔹 Single Responsibility Principle**
 ```typescript
@@ -189,23 +188,25 @@ class EncryptedFileSystemService {
 
 ## 🛠️ **Technology Stack**
 
-### **Frontend Excellence**
-- **⚛️ React 19**: Latest React with concurrent features
-- **📘 TypeScript**: Strict typing for bulletproof code
-- **🎨 Tailwind CSS**: Utility-first styling with custom theme system
-- **⚡ Vite 7.0**: Lightning-fast development and builds
+## 🛠️ **Technology Stack**
 
-### **Security & Encryption**
-- **🔐 Web Crypto API**: Browser-native cryptography (no external crypto libraries)
-- **🔑 AES-GCM**: Authenticated encryption with galois counter mode
-- **🛡️ PBKDF2**: Password-based key derivation (100,000 iterations)
-- **🔒 256-bit Keys**: Maximum security for your reflections
+### **Modern & Secure**
+- **⚛️ React**: Latest technology for smooth user experience
+- **📘 TypeScript**: Reliable, error-free code
+- **🎨 Beautiful Design**: Modern, responsive interface
+- **⚡ Lightning Fast**: Instant loading and smooth performance
 
-### **Modern Browser APIs**
-- **📁 File System Access API**: Direct file system integration
-- **💾 localStorage**: Persistent local storage
-- **🌙 prefers-color-scheme**: System theme detection
-- **♿ Web Accessibility**: Full ARIA support and keyboard navigation
+### **Security & Privacy**
+- **🔐 Browser-Native Encryption**: No external dependencies for maximum security
+- **🔑 Advanced Encryption**: Military-grade protection for your files
+- **🛡️ Password Security**: Secure key generation and management
+- **🔒 Maximum Protection**: 256-bit encryption for ultimate security
+
+### **Modern Browser Features**
+- **📁 Direct File Access**: Save and load files directly from your computer
+- **💾 Smart Storage**: Automatic local storage for convenience
+- **🌙 System Integration**: Automatically matches your device's theme
+- **♿ Full Accessibility**: Works perfectly with screen readers and keyboard navigation
 
 ---
 
