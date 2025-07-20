@@ -4,6 +4,7 @@ import { PasswordModal } from "./PasswordModal";
 import usePasswordManager from "../hooks/usePasswordManager";
 import { serviceContainer } from "../services/ServiceContainer";
 import { UIUtils } from "../utils/UIUtils";
+import { ThemeUtils } from "../utils/ThemeUtils";
 import { APP_CONSTANTS } from "../constants/AppConstants";
 import type { Note } from "../models/Note";
 import type { Theme } from "../services/ThemeService";
@@ -157,11 +158,7 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
 
   return (
     <>
-      <header className={`sticky top-0 z-40 border-b transition-colors duration-200 ${
-        currentTheme === 'dark' 
-          ? 'bg-gray-800 border-gray-700' 
-          : 'bg-white border-gray-200'
-      }`}>
+      <header className={`sticky top-0 z-40 border-b ${ThemeUtils.getTransitions()} ${ThemeUtils.getHeaderStyle(currentTheme)}`}>
         <div className="flex items-center justify-between px-6 py-4">
           {/* Theme toggle moved to left corner */}
           <div className="flex items-center gap-4">
@@ -169,9 +166,7 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
               themeService={serviceContainer.configurationService.getThemeService()}
             />
             {/* Title */}
-            <h1 className={`text-xl font-bold ${
-              currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-            }`}>
+            <h1 className={`text-xl font-bold ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>
               📝 Reflection Notes
             </h1>
           </div>
@@ -182,30 +177,14 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
               <>
                 <div className="flex gap-2 items-center h-10">
                   <button
-                    className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[40px] justify-center h-10 ${
-                      currentTheme === 'dark' 
-                        ? 'text-blue-400 border-gray-600 hover:border-gray-500' 
-                        : 'text-blue-600 border-gray-300 hover:border-gray-400'
-                    }`}
+                    className={ThemeUtils.getButtonStyle(currentTheme, 'PRIMARY')}
                     onClick={handleLoad}
                     title="Load file"
                   >
                     📁
                   </button>
                   <button
-                    className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[40px] justify-center h-10 ${
-                      hasUnsavedChanges 
-                        ? `text-orange-600 hover:text-orange-800 ${
-                            currentTheme === 'dark' 
-                              ? 'border-orange-400 hover:border-orange-300' 
-                              : 'border-orange-200 hover:border-orange-300'
-                          }` 
-                        : `text-blue-600 hover:text-blue-800 ${
-                            currentTheme === 'dark' 
-                              ? 'border-gray-600 hover:border-gray-500' 
-                              : 'border-gray-300 hover:border-gray-400'
-                          }`
-                    }`}
+                    className={`${ThemeUtils.getButtonStyle(currentTheme, hasUnsavedChanges ? 'WARNING' : 'PRIMARY')}`}
                     onClick={handleSave}
                     title={`Save file${hasUnsavedChanges ? " (unsaved changes)" : ""}`}
                   >
@@ -213,11 +192,7 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
                   </button>
                   {loadedFileName && (
                     <button
-                      className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[40px] justify-center h-10 ${
-                        currentTheme === 'dark' 
-                          ? 'text-red-400 border-gray-600 hover:border-gray-500' 
-                          : 'text-red-600 border-gray-300 hover:border-gray-400'
-                      }`}
+                      className={ThemeUtils.getButtonStyle(currentTheme, 'DANGER')}
                       onClick={async () => {
                         if (hasUnsavedChanges) {
                           const proceed = await onWarnUnsaved();
@@ -233,31 +208,29 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
                 </div>
                 
                 {/* File status information beside buttons */}
-                <div className="text-xs text-gray-600">
+                <div className={`text-xs ${ThemeUtils.getText(currentTheme, 'SECONDARY')}`}>
                   {loadedFileName && (
-                    <div className={`flex items-center gap-1 ${isFileHandleLost ? "text-orange-600" : ""}`}>
+                    <div className={`flex items-center gap-1 ${isFileHandleLost ? ThemeUtils.getStatusColor(currentTheme, 'warning') : ""}`}>
                       {isFileHandleLost && <span>⚠</span>}
                       {isFileEncrypted && <span>🔒</span>}
                       <span>Loaded: {loadedFileName}</span>
                     </div>
                   )}
                   {isFileHandleLost && loadedFileName && (
-                    <div className="text-orange-600 font-medium">File connection lost - click Save to reconnect</div>
+                    <div className={`font-medium ${ThemeUtils.getStatusColor(currentTheme, 'warning')}`}>File connection lost - click Save to reconnect</div>
                   )}
                   {hasUnsavedChanges && (
-                    <div className="text-orange-600 font-medium">• Unsaved changes</div>
+                    <div className={`font-medium ${ThemeUtils.getStatusColor(currentTheme, 'warning')}`}>• Unsaved changes</div>
                   )}
                   {isAutoSaving && (
-                    <div className={`${currentTheme === 'dark' ? 'text-blue-400' : 'text-blue-600'}`}>
+                    <div className={ThemeUtils.getStatusColor(currentTheme, 'info')}>
                       • Auto-saving...
                     </div>
                   )}
                 </div>
               </>
             ) : (
-              <div className={`text-sm ${
-                currentTheme === 'dark' ? 'text-red-400' : 'text-red-600'
-              }`}>
+              <div className={`text-sm ${ThemeUtils.getStatusColor(currentTheme, 'error')}`}>
                 {APP_CONSTANTS.UI_MESSAGES.FILE_SYSTEM_NOT_SUPPORTED}
               </div>
             )}
@@ -280,31 +253,19 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
       {/* Encryption Options Modal */}
       {showEncryptionOptions && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-          <div className={`relative w-full max-w-md mx-4 p-6 rounded-lg shadow-xl ${
-            currentTheme === 'dark' 
-              ? 'bg-gray-800 border border-gray-600' 
-              : 'bg-white border border-gray-200'
-          }`}>
-            <h3 className={`text-lg font-semibold mb-4 ${
-              currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-            }`}>
+          <div className={`relative w-full max-w-md mx-4 p-6 rounded-lg shadow-xl ${ThemeUtils.getModalStyle(currentTheme)}`}>
+            <h3 className={`text-lg font-semibold mb-4 ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>
               File Encryption
             </h3>
             
-            <p className={`text-sm mb-6 ${
-              currentTheme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-            }`}>
+            <p className={`text-sm mb-6 ${ThemeUtils.getText(currentTheme, 'SECONDARY')}`}>
               Do you want to encrypt this file with a password?
             </p>
 
             <div className="flex gap-3">
               <button
                 onClick={() => handleSaveWithEncryption(false)}
-                className={`flex-1 px-4 py-2 border rounded-md text-sm font-medium ${
-                  currentTheme === 'dark'
-                    ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-                }`}
+                className={`flex-1 px-4 py-2 border rounded-md text-sm font-medium ${ThemeUtils.getBorder(currentTheme, 'SECONDARY')} ${ThemeUtils.getText(currentTheme, 'SECONDARY')} hover:${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}
               >
                 Save without encryption
               </button>

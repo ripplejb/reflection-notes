@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { ThemeUtils } from "../utils/ThemeUtils";
 import type { Theme } from "../services/ThemeService";
 
 interface PasswordModalProps {
@@ -59,19 +60,13 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
       onClick={(e) => e.target === e.currentTarget && !isLoading && onClose()}
     >
       <div 
-        className={`relative w-full max-w-md mx-4 p-6 rounded-lg shadow-xl ${
-          theme === 'dark' 
-            ? 'bg-gray-800 border border-gray-600' 
-            : 'bg-white border border-gray-200'
-        }`}
+        className={`relative w-full max-w-md mx-4 p-6 rounded-lg shadow-xl ${ThemeUtils.getModalStyle(theme)}`}
         onKeyDown={handleKeyDown}
         tabIndex={-1}
       >
         {/* Header */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className={`text-lg font-semibold ${
-            theme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-          }`}>
+          <h2 className={`text-lg font-semibold ${ThemeUtils.getText(theme, 'PRIMARY')}`}>
             {title}
           </h2>
           {!isLoading && (
