@@ -217,7 +217,12 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
                     </div>
                   )}
                   {isFileHandleLost && loadedFileName && (
-                    <div className={`font-medium ${ThemeUtils.getStatusColor(currentTheme, 'warning')}`}>File connection lost - click Save to reconnect</div>
+                    <div className={`font-medium ${ThemeUtils.getStatusColor(currentTheme, 'warning')}`}>
+                      {isFileEncrypted 
+                        ? "Encrypted file connection lost - content cleared for security. Please reload the file."
+                        : "File connection lost - click Save to reconnect"
+                      }
+                    </div>
                   )}
                   {hasUnsavedChanges && (
                     <div className={`font-medium ${ThemeUtils.getStatusColor(currentTheme, 'warning')}`}>• Unsaved changes</div>

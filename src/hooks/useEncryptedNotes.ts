@@ -20,11 +20,34 @@ export function useEncryptedNotes() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [isFileHandleLost, setIsFileHandleLost] = useState(false);
   const [isAutoSaving, setIsAutoSaving] = useState(false);
-  const [isFileEncrypted, setIsFileEncrypted] = useState(false);
+  const [isFileEncrypted, setIsFileEncrypted] = useState(() => {
+    // Restore encryption state from localStorage
+    try {
+      const stored = localStorage.getItem("reflection-notes-file-encrypted");
+      return stored === "true";
+    } catch (error) {
+      console.warn("Failed to retrieve file encryption state from localStorage:", error);
+      return false;
+    }
+  });
   const [filePassword, setFilePassword] = useState<string | null>(null);
 
   // Password management
   const { passwordState, requestPassword, closePasswordModal, handlePasswordSubmit } = usePasswordManager();
+
+  // Helper function to update encryption state and persist to localStorage
+  const updateEncryptionState = (encrypted: boolean) => {
+    setIsFileEncrypted(encrypted);
+    try {
+      if (encrypted) {
+        localStorage.setItem("reflection-notes-file-encrypted", "true");
+      } else {
+        localStorage.removeItem("reflection-notes-file-encrypted");
+      }
+    } catch (error) {
+      console.warn("Failed to save file encryption state to localStorage:", error);
+    }
+  };
 
   // Debounce timer for autosave
   const autosaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -76,10 +99,18 @@ export function useEncryptedNotes() {
       setIsFileHandleLost(true);
       // Clear password when file handle is lost for security
       setFilePassword(null);
+      
+      // For encrypted files, also clear the content for security
+      // This prevents unauthorized access to decrypted data after disconnection
+      if (isFileEncrypted) {
+        setNotes([]);
+        storageService.saveNotes([]);
+        setHasUnsavedChanges(false);
+      }
     } else {
       setIsFileHandleLost(false);
     }
-  }, [loadedFileName, fileHandle]);
+  }, [loadedFileName, fileHandle, isFileEncrypted]);
 
   const refresh = () => setNotes(storageService.getNotes());
 
@@ -121,7 +152,7 @@ export function useEncryptedNotes() {
     
     setFileHandle(handle);
     setLoadedFileName(fileName);
-    setIsFileEncrypted(!!password);
+    updateEncryptionState(!!password);
     setFilePassword(password || null);
     try {
       localStorage.setItem("reflection-notes-file-name", fileName);
@@ -143,7 +174,7 @@ export function useEncryptedNotes() {
     // Update password state if provided
     if (password !== undefined) {
       setFilePassword(password || null);
-      setIsFileEncrypted(!!password);
+      updateEncryptionState(!!password);
     }
     
     setHasUnsavedChanges(false);
@@ -156,7 +187,7 @@ export function useEncryptedNotes() {
     storageService.saveNotes(notes);
     setFileHandle(handle);
     setLoadedFileName(handle.name);
-    setIsFileEncrypted(encrypted);
+    updateEncryptionState(encrypted);
     setFilePassword(password || null);
     try {
       localStorage.setItem("reflection-notes-file-name", handle.name);
@@ -189,7 +220,7 @@ export function useEncryptedNotes() {
   const clearFileAssociation = () => {
     setFileHandle(null);
     setLoadedFileName(null);
-    setIsFileEncrypted(false);
+    updateEncryptionState(false);
     setFilePassword(null);
     setIsFileHandleLost(false);
     try {
