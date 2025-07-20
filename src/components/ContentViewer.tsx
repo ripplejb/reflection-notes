@@ -4,6 +4,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { FaEdit, FaTrash } from "react-icons/fa";
 import { serviceContainer } from "../services/ServiceContainer";
+import { ThemeUtils } from "../utils/ThemeUtils";
 import type { IMarkdownProcessor } from "../services/MarkdownProcessor";
 import type { Theme } from "../services/ThemeService";
 
@@ -37,27 +38,17 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({
   return (
     <>
       <div className="flex justify-between items-center mb-2">
-        <h2 className={`text-xl font-bold ${
-          currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-        }`}>{header}</h2>
+        <h2 className={`text-xl font-bold ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>{header}</h2>
         <div className="flex gap-2">
           <button
-            className={`${
-              currentTheme === 'dark' 
-                ? 'text-gray-400 hover:text-blue-400' 
-                : 'text-gray-500 hover:text-blue-600'
-            }`}
+            className={`${ThemeUtils.getText(currentTheme, 'MUTED')} hover:${ThemeUtils.getStatusColor(currentTheme, 'info')}`}
             onClick={onEdit}
             aria-label="Edit content"
           >
             <FaEdit />
           </button>
           <button
-            className={`${
-              currentTheme === 'dark' 
-                ? 'text-gray-400 hover:text-red-400' 
-                : 'text-gray-500 hover:text-red-600'
-            }`}
+            className={`${ThemeUtils.getText(currentTheme, 'MUTED')} hover:${ThemeUtils.getStatusColor(currentTheme, 'error')}`}
             onClick={onDelete}
             aria-label="Delete content"
           >

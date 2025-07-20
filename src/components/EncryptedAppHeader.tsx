@@ -282,9 +282,7 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
                 ? 'bg-blue-900/20 border-blue-700' 
                 : 'bg-blue-50 border-blue-200'
             }`}>
-              <p className={`text-xs ${
-                currentTheme === 'dark' ? 'text-blue-300' : 'text-blue-600'
-              }`}>
+              <p className={`text-xs ${ThemeUtils.getStatusColor(currentTheme, 'info')}`}>
                 🔒 <strong>Encryption:</strong> Each file can have its own password. The entire file will be encrypted, and you'll need the password every time you load it.
               </p>
             </div>

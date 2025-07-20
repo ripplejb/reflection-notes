@@ -7,6 +7,7 @@ import { useEncryptedNotes } from "../hooks/useEncryptedNotes";
 import { useTimezone } from "../hooks/useTimezone";
 import { useBeforeUnloadWarning } from "../hooks/useBeforeUnloadWarning";
 import { useSelectedNote } from "../hooks/useSelectedNote";
+import { ThemeUtils } from "../utils/ThemeUtils";
 import type { Content } from "../models/Note";
 import { serviceContainer } from "../services/ServiceContainer";
 import { UIUtils } from "../utils/UIUtils";
@@ -155,9 +156,7 @@ export const MainPage: React.FC = () => {
   };
 
   return (
-    <div className={`min-h-screen transition-colors duration-200 ${
-      currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
-    }`}>
+    <div className={`min-h-screen ${ThemeUtils.getTransitions()} ${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}>
       <EncryptedAppHeader
         isAutoSaving={isAutoSaving}
         loadedFileName={loadedFileName}

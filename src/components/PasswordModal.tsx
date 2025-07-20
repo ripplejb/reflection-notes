@@ -72,11 +72,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
           {!isLoading && (
             <button
               onClick={onClose}
-              className={`text-xl leading-none ${
-                theme === 'dark' 
-                  ? 'text-gray-400 hover:text-gray-200' 
-                  : 'text-gray-500 hover:text-gray-700'
-              }`}
+              className={`text-xl leading-none ${ThemeUtils.getText(theme, 'MUTED')} hover:${ThemeUtils.getText(theme, 'SECONDARY')}`}
               aria-label="Close modal"
             >
               ×
@@ -85,9 +81,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
         </div>
 
         {/* Message */}
-        <p className={`mb-4 text-sm ${
-          theme === 'dark' ? 'text-gray-300' : 'text-gray-600'
-        }`}>
+        <p className={`mb-4 text-sm ${ThemeUtils.getText(theme, 'SECONDARY')}`}>
           {message}
         </p>
 
@@ -105,9 +99,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
           <div>
             <label 
               htmlFor="password-input"
-              className={`block text-sm font-medium mb-2 ${
-                theme === 'dark' ? 'text-gray-300' : 'text-gray-700'
-              }`}
+              className={`block text-sm font-medium mb-2 ${ThemeUtils.getText(theme, 'SECONDARY')}`}
             >
               Password
             </label>
@@ -119,22 +111,14 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 autoFocus
-                className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 ${
-                  theme === 'dark'
-                    ? 'bg-gray-700 border-gray-600 text-gray-100 placeholder-gray-400'
-                    : 'bg-white border-gray-300 text-gray-900 placeholder-gray-500'
-                }`}
+                className={`w-full px-3 py-2 pr-10 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 ${ThemeUtils.getInputStyle(theme)}`}
                 placeholder="Enter password"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 disabled={isLoading}
-                className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-sm ${
-                  theme === 'dark' 
-                    ? 'text-gray-400 hover:text-gray-200' 
-                    : 'text-gray-500 hover:text-gray-700'
-                } disabled:opacity-50`}
+                className={`absolute right-2 top-1/2 transform -translate-y-1/2 text-sm ${ThemeUtils.getText(theme, 'MUTED')} hover:${ThemeUtils.getText(theme, 'SECONDARY')} disabled:opacity-50`}
                 aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? "👁️" : "👁️‍🗨️"}
@@ -148,11 +132,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
               type="button"
               onClick={onClose}
               disabled={isLoading}
-              className={`flex-1 px-4 py-2 border rounded-md text-sm font-medium disabled:opacity-50 ${
-                theme === 'dark'
-                  ? 'border-gray-600 text-gray-300 hover:bg-gray-700'
-                  : 'border-gray-300 text-gray-700 hover:bg-gray-50'
-              }`}
+              className={`flex-1 px-4 py-2 border rounded-md text-sm font-medium disabled:opacity-50 ${ThemeUtils.getBorder(theme, 'SECONDARY')} ${ThemeUtils.getText(theme, 'SECONDARY')} hover:${ThemeUtils.getBackground(theme, 'SECONDARY')}`}
             >
               Cancel
             </button>
@@ -186,9 +166,7 @@ export const PasswordModal: React.FC<PasswordModalProps> = ({
             ? 'bg-blue-900/20 border-blue-700' 
             : 'bg-blue-50 border-blue-200'
         }`}>
-          <p className={`text-xs ${
-            theme === 'dark' ? 'text-blue-300' : 'text-blue-600'
-          }`}>
+          <p className={`text-xs ${ThemeUtils.getStatusColor(theme, 'info')}`}>
             🔒 <strong>Security Note:</strong> Each file can have its own password. Your password is never stored - only you know it.
           </p>
         </div>

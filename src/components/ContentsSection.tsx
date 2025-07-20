@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { FaPlus } from "react-icons/fa";
 import { ContentComponent } from './ContentComponent';
 import { DateUtils } from '../utils/DateUtils';
+import { ThemeUtils } from '../utils/ThemeUtils';
 import { APP_CONSTANTS } from '../constants/AppConstants';
 import { serviceContainer } from '../services/ServiceContainer';
 import type { Note, Content } from '../models/Note';
@@ -43,18 +44,12 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   return (
     <section className="flex-1">
       <div className="flex justify-between items-center mb-2">
-        <h2 className={`font-semibold text-lg ${
-          currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-        }`}>
+        <h2 className={`font-semibold text-lg ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>
           {getFormattedDateHeader()}
         </h2>
         {selectedNote && (
           <button
-            className={`flex items-center gap-1 ${
-              currentTheme === 'dark' 
-                ? 'text-blue-400 hover:text-blue-300' 
-                : 'text-blue-600 hover:text-blue-800'
-            }`}
+            className={`flex items-center gap-1 ${ThemeUtils.getStatusColor(currentTheme, 'info')} hover:opacity-80`}
             onClick={onAddContent}
             aria-label="Add content"
           >
@@ -74,16 +69,12 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
             />
           ))
         ) : (
-          <div className={`${
-            currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-          }`}>
+          <div className={ThemeUtils.getText(currentTheme, 'MUTED')}>
             {APP_CONSTANTS.UI_MESSAGES.NO_CONTENTS_FOR_DATE}
           </div>
         )
       ) : (
-        <div className={`${
-          currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-400'
-        }`}>
+        <div className={ThemeUtils.getText(currentTheme, 'MUTED')}>
           {APP_CONSTANTS.UI_MESSAGES.NO_DATE_SELECTED}
         </div>
       )}

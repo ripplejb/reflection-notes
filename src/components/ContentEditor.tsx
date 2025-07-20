@@ -3,6 +3,7 @@ import React, { useCallback, useState, useEffect } from "react";
 import MDEditor from '@uiw/react-md-editor';
 import { FaEye } from "react-icons/fa";
 import { HeaderDropdown } from "./HeaderDropdown";
+import { ThemeUtils } from "../utils/ThemeUtils";
 import type { IConfigurationService } from "../services/ConfigurationService";
 import type { Theme } from "../services/ThemeService";
 import '@uiw/react-md-editor/markdown-editor.css';
@@ -58,30 +59,20 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   const colorMode = currentTheme === 'dark' ? 'dark' : 'light';
 
   return (
-    <div className={`rounded-lg shadow-sm ${
-      currentTheme === 'dark' ? 'bg-gray-800' : 'bg-white'
-    }`} data-color-mode={colorMode}>
-      <div className={`flex items-center justify-between p-3 border-b ${
-        currentTheme === 'dark' 
-          ? 'bg-gray-800 text-gray-200 border-gray-700' 
-          : 'bg-gray-50 text-gray-700 border-gray-200'
-      }`}>
+    <div className={`rounded-lg shadow-sm ${ThemeUtils.getBackground(currentTheme, 'PRIMARY')}`} data-color-mode={colorMode}>
+      <div className={`flex items-center justify-between p-3 border-b ${ThemeUtils.getBackground(currentTheme, 'SECONDARY')} ${ThemeUtils.getText(currentTheme, 'PRIMARY')} ${ThemeUtils.getBorder(currentTheme, 'PRIMARY')}`}>
         <div className="flex items-center gap-2">
           <span className="text-sm font-medium">Content Editor</span>
         </div>
         <button
           onClick={onViewMode}
-          className={`p-1 rounded hover:bg-opacity-80 ${
-            currentTheme === 'dark' 
-              ? 'text-gray-300 hover:bg-gray-700' 
-              : 'text-gray-600 hover:bg-gray-200'
-          }`}
+          className={`p-1 rounded hover:bg-opacity-80 ${ThemeUtils.getText(currentTheme, 'SECONDARY')} hover:${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}
           aria-label="Switch to view mode"
         >
           <FaEye size={16} />
         </button>
       </div>
-      <div className={`p-3 space-y-3 ${currentTheme === 'dark' ? 'bg-gray-900' : 'bg-white'}`}>
+      <div className={`p-3 space-y-3 ${ThemeUtils.getBackground(currentTheme, 'PRIMARY')}`}>
         <HeaderDropdown
           value={header}
           options={predefinedHeaders}
@@ -94,9 +85,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
           onClose={() => setIsDropdownOpen(false)}
           theme={currentTheme}
         />
-        <div className={`rounded overflow-hidden ${
-          currentTheme === 'dark' ? 'border border-gray-600' : 'border border-gray-300'
-        }`}>
+        <div className={`rounded overflow-hidden border ${ThemeUtils.getBorder(currentTheme, 'SECONDARY')}`}>
           <MDEditor
             value={content}
             onChange={handleContentChange}

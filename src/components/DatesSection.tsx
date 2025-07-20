@@ -5,6 +5,7 @@ import { DateComponent } from './DateComponent';
 import { DateRangeFilter } from './DateRangeFilter';
 import { DateUtils } from '../utils/DateUtils';
 import { UIUtils } from '../utils/UIUtils';
+import { ThemeUtils } from '../utils/ThemeUtils';
 import { APP_CONSTANTS } from '../constants/AppConstants';
 import { serviceContainer } from '../services/ServiceContainer';
 import type { Note } from '../models/Note';
@@ -53,20 +54,14 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
   return (
     <section className="w-1/4">
       <div className="flex justify-between items-center mb-2">
-        <h2 className={`font-semibold text-lg ${
-          currentTheme === 'dark' ? 'text-gray-100' : 'text-gray-900'
-        }`}>Dates</h2>
+        <h2 className={`font-semibold text-lg ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>Dates</h2>
         <div className="flex items-center gap-2">
           <DateRangeFilter
             onFilterChange={onDateRangeFilterChange}
             isActive={isFilterActive}
           />
           <button
-            className={`flex items-center gap-1 ${
-              currentTheme === 'dark' 
-                ? 'text-blue-400 hover:text-blue-300' 
-                : 'text-blue-600 hover:text-blue-800'
-            }`}
+            className={`flex items-center gap-1 ${ThemeUtils.getStatusColor(currentTheme, 'info')} hover:opacity-80`}
             onClick={onAddDate}
             aria-label="Add date"
           >
@@ -76,9 +71,7 @@ export const DatesSection: React.FC<DatesSectionProps> = ({
       </div>
       
       {hasNoFilteredResults ? (
-        <div className={`text-sm py-4 text-center ${
-          currentTheme === 'dark' ? 'text-gray-400' : 'text-gray-500'
-        }`}>
+        <div className={`text-sm py-4 text-center ${ThemeUtils.getText(currentTheme, 'MUTED')}`}>
           {APP_CONSTANTS.UI_MESSAGES.NO_DATES_IN_RANGE}
         </div>
       ) : (
