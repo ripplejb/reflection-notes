@@ -23,6 +23,14 @@ In a world where everything goes to the cloud, your most personal thoughts and r
 
 ## ✨ Key Features
 
+### 🌙 **Dark Theme Support**
+- **Smart Theme Toggle**: One-click switching between light and dark modes with sun/moon icons (☀️🌙)
+- **System Preference Detection**: Automatically detects and respects your device's theme preference
+- **Persistent Theme Memory**: Remembers your theme choice across sessions with localStorage
+- **Complete UI Coverage**: All components beautifully themed including calendar, editor, and controls
+- **Accessibility Optimized**: Proper contrast ratios and ARIA labels for screen readers
+- **Seamless Transitions**: Smooth color transitions when switching themes
+
 ### 📝 **Enhanced Markdown Editor**
 - **Modern EasyMDE Integration**: Professional markdown editing with live preview
 - **Rich Text Formatting**: Full markdown support with syntax highlighting
@@ -92,6 +100,7 @@ In a world where everything goes to the cloud, your most personal thoughts and r
 
 ### **Advanced Service Layer Architecture**
 - **ConfigurationService**: Composition-based configuration with dependency injection
+- **ThemeService**: Comprehensive theme management with system preference detection and persistence
 - **MarkdownEditorService**: Abstract editor implementation with EasyMDE concrete service
 - **HeaderProviderService**: Dedicated header management with validation
 - **ValidationService**: Comprehensive validation with detailed error reporting
@@ -142,6 +151,12 @@ npm run preview
 ```
 
 ## Usage
+
+### Theme Customization
+- **Dark Theme Toggle**: Click the sun/moon icon (☀️🌙) in the header to switch between light and dark themes
+- **Automatic Detection**: App automatically detects your system's dark mode preference on first visit
+- **Persistent Memory**: Your theme choice is remembered across browser sessions
+- **Complete Coverage**: All UI elements adapt to your chosen theme including calendar, editor, and controls
 
 ### Creating Reflection Notes
 1. **Add a Date**: Click "Add" in the Dates section to create a new date entry
@@ -227,12 +242,14 @@ src/
 │   ├── ContentEditor.tsx         # Enhanced EasyMDE editing functionality
 │   ├── ContentViewer.tsx         # Display functionality with markdown rendering
 │   ├── HeaderDropdown.tsx        # Smart header suggestions with validation
+│   ├── ThemeToggle.tsx           # NEW: Dark/light theme toggle component
 │   ├── DateComponent.tsx         # Date management
 │   ├── DateRangeFilter.tsx       # Date range filtering interface
 │   └── DiskStorageControls.tsx   # File operations
 ├── services/                     # SOLID service layer (DI pattern)
 │   ├── ServiceContainer.ts       # Dependency injection container
 │   ├── ConfigurationService.ts   # Enhanced composition-based configuration
+│   ├── ThemeService.ts           # NEW: Comprehensive theme management service
 │   ├── MarkdownEditorService.ts  # NEW: Editor abstraction with EasyMDE implementation
 │   ├── HeaderProviderService.ts  # NEW: Dedicated header management with validation
 │   ├── ValidationService.ts      # NEW: Comprehensive validation service
@@ -247,6 +264,7 @@ src/
 │   └── MarkdownEditorFactory.ts  # Configuration factory with presets
 ├── constants/                    # Enhanced constants management
 │   ├── AppConstants.ts           # Application-wide constants with timing
+│   ├── ThemeConstants.ts         # NEW: Theme-specific constants and UI classes
 │   └── MarkdownEditorConstants.ts # NEW: Editor-specific constants
 ├── hooks/                        # Custom React hooks
 │   └── useLocalStorage.ts        # Persistent state management
@@ -285,7 +303,7 @@ docs/                            # Architecture documentation
 ## SOLID Architecture Benefits
 
 ### **Comprehensive SOLID Implementation**
-- ✅ **Single Responsibility**: 7 specialized services, each with one clear purpose
+- ✅ **Single Responsibility**: 8 specialized services, each with one clear purpose
 - ✅ **Open/Closed**: Interface-based design enables easy extension without modification  
 - ✅ **Liskov Substitution**: Proper dependency injection with substitutable implementations
 - ✅ **Interface Segregation**: Client-specific interfaces separated by concern
@@ -301,6 +319,13 @@ docs/                            # Architecture documentation
 
 ### **Recent SOLID Compliance Enhancements**
 
+#### **Dark Theme Implementation with SOLID Principles**
+- **ThemeService**: Complete theme management following SRP with system preference detection
+- **IThemeService Interface**: Abstraction enabling future theme implementations (OCP)
+- **ThemeToggle Component**: Single responsibility UI component with dependency injection
+- **ThemeConstants**: Centralized theme-related constants and UI classes
+- **Component Integration**: All components receive theme through proper dependency injection
+
 #### **EasyMDE Integration with SOLID Principles**
 - **MarkdownEditorService**: Abstract editor interface with concrete EasyMDE implementation
 - **MarkdownEditorFactory**: Configuration factory pattern for different editor setups
@@ -314,7 +339,7 @@ docs/                            # Architecture documentation
 - **Type Safety**: Replaced all `any` types with `unknown` and proper type guards
 - **Interface Segregation**: Split configuration interfaces by client needs (IHeaderProvider, IMarkdownEditorConfig)
 
-This architecture ensures consistent patterns throughout the application and makes adding new capabilities (alternative editors, validation rules, error handlers) straightforward without violating existing code.
+This architecture ensures consistent patterns throughout the application and makes adding new capabilities (alternative editors, validation rules, error handlers, theme systems) straightforward without violating existing code.
 
 ## Testing
 
