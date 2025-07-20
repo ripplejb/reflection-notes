@@ -42,6 +42,7 @@ export const MainPage: React.FC = () => {
     saveToLocal,
     saveAs,
     handleLoad,
+    clearFileAssociation,
     passwordState,
     closePasswordModal,
     handlePasswordSubmit,
@@ -69,6 +70,16 @@ export const MainPage: React.FC = () => {
     loadedFileName,
     isFileHandleLost
   });
+
+  // Close file functionality
+  const handleClose = () => {
+    // Clear file association
+    clearFileAssociation();
+    // Clear notes from storage and state - reset to empty
+    serviceContainer.storageService.saveNotes([]);
+    // This will trigger a re-render with empty notes
+    window.location.reload();
+  };
 
   // Apply filters to notes
   const filteredNotes = notes.filter((note) => {
@@ -157,6 +168,7 @@ export const MainPage: React.FC = () => {
         onSaveToLocal={saveToLocal}
         onSaveAs={saveAs}
         onWarnUnsaved={warnUnsaved}
+        onClose={handleClose}
       />
       
       <main className="flex flex-row gap-4 px-6 py-6">

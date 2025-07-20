@@ -18,6 +18,7 @@ interface EncryptedAppHeaderProps {
   onSaveToLocal: (password?: string) => void;
   onSaveAs: (password?: string) => void;
   onWarnUnsaved: () => Promise<boolean>;
+  onClose: () => void;
 }
 
 export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
@@ -30,6 +31,7 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
   onSaveToLocal,
   onSaveAs,
   onWarnUnsaved,
+  onClose,
 }) => {
   // Theme state
   const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
@@ -209,6 +211,25 @@ export const EncryptedAppHeader: React.FC<EncryptedAppHeaderProps> = ({
                   >
                     💾{hasUnsavedChanges ? " *" : ""}
                   </button>
+                  {loadedFileName && (
+                    <button
+                      className={`flex items-center gap-1 px-3 py-2 rounded border min-w-[40px] justify-center h-10 ${
+                        currentTheme === 'dark' 
+                          ? 'text-red-400 border-gray-600 hover:border-gray-500' 
+                          : 'text-red-600 border-gray-300 hover:border-gray-400'
+                      }`}
+                      onClick={async () => {
+                        if (hasUnsavedChanges) {
+                          const proceed = await onWarnUnsaved();
+                          if (!proceed) return;
+                        }
+                        onClose();
+                      }}
+                      title="Close file"
+                    >
+                      ❌
+                    </button>
+                  )}
                 </div>
                 
                 {/* File status information beside buttons */}
