@@ -69,7 +69,7 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
             <ContentComponent
               key={content.id}
               content={content}
-              onUpdate={(updated) => onUpdateContent(content.id, updated)}
+              onUpdate={(updated: Content) => onUpdateContent(content.id, updated)}
               onDelete={() => onDeleteContent(content.id)}
             />
           ))

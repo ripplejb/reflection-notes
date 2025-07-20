@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { AppHeader } from "./AppHeader";
+import { EncryptedAppHeader } from "./EncryptedAppHeader";
 import { DatesSection } from "./DatesSection";
 import { ContentsSection } from "./ContentsSection";
-import { useNotes } from "../hooks/useLocalStorage";
+import { PasswordModal } from "./PasswordModal";
+import { useEncryptedNotes } from "../hooks/useEncryptedNotes";
 import { useTimezone } from "../hooks/useTimezone";
 import { useBeforeUnloadWarning } from "../hooks/useBeforeUnloadWarning";
 import { useSelectedNote } from "../hooks/useSelectedNote";
@@ -36,11 +37,15 @@ export const MainPage: React.FC = () => {
     hasUnsavedChanges,
     isFileHandleLost,
     isAutoSaving,
+    isFileEncrypted,
     warnUnsaved,
     saveToLocal,
     saveAs,
     handleLoad,
-  } = useNotes();
+    passwordState,
+    closePasswordModal,
+    handlePasswordSubmit,
+  } = useEncryptedNotes();
 
   const { selectedDate, setSelectedDate, selectedNote, selectFirstAvailableNote } = useSelectedNote({
     notes,
@@ -142,11 +147,12 @@ export const MainPage: React.FC = () => {
     <div className={`min-h-screen transition-colors duration-200 ${
       currentTheme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'
     }`}>
-      <AppHeader
+      <EncryptedAppHeader
         isAutoSaving={isAutoSaving}
         loadedFileName={loadedFileName}
         hasUnsavedChanges={hasUnsavedChanges}
         isFileHandleLost={isFileHandleLost}
+        isFileEncrypted={isFileEncrypted}
         onLoad={handleLoad}
         onSaveToLocal={saveToLocal}
         onSaveAs={saveAs}
@@ -172,6 +178,18 @@ export const MainPage: React.FC = () => {
           onDeleteContent={handleDeleteContent}
         />
       </main>
+
+      {/* Global Password Modal */}
+      <PasswordModal
+        isOpen={passwordState.isModalOpen}
+        onClose={closePasswordModal}
+        onSubmit={handlePasswordSubmit}
+        title={passwordState.modalTitle}
+        message={passwordState.modalMessage}
+        isLoading={passwordState.isLoading}
+        error={passwordState.error || undefined}
+        theme={currentTheme}
+      />
     </div>
   );
 };
