@@ -60,31 +60,28 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
 
   return (
     <div className={`rounded-lg shadow-sm ${ThemeUtils.getBackground(currentTheme, 'PRIMARY')}`} data-color-mode={colorMode}>
-      <div className={`flex items-center justify-between p-3 border-b ${ThemeUtils.getBackground(currentTheme, 'SECONDARY')} ${ThemeUtils.getText(currentTheme, 'PRIMARY')} ${ThemeUtils.getBorder(currentTheme, 'PRIMARY')}`}>
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">Content Editor</span>
-        </div>
-        <button
-          onClick={onViewMode}
-          className={`p-1 rounded hover:bg-opacity-80 ${ThemeUtils.getText(currentTheme, 'SECONDARY')} hover:${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}
-          aria-label="Switch to view mode"
-        >
-          <FaEye size={16} />
-        </button>
-      </div>
       <div className={`p-3 space-y-3 ${ThemeUtils.getBackground(currentTheme, 'PRIMARY')}`}>
-        <HeaderDropdown
-          value={header}
-          options={predefinedHeaders}
-          onSelect={handleHeaderSelect}
-          onValueChange={onHeaderChange}
-          onFocus={() => {}}
-          placeholder="Header or select from dropdown"
-          isOpen={isDropdownOpen}
-          onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
-          onClose={() => setIsDropdownOpen(false)}
-          theme={currentTheme}
-        />
+        <div className={`flex justify-between items-center mb-2`}>
+          <HeaderDropdown
+            value={header}
+            options={predefinedHeaders}
+            onSelect={handleHeaderSelect}
+            onValueChange={onHeaderChange}
+            onFocus={() => {}}
+            placeholder="Header or select from dropdown"
+            isOpen={isDropdownOpen}
+            onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
+            onClose={() => setIsDropdownOpen(false)}
+            theme={currentTheme}
+          />
+          <button
+            onClick={onViewMode}
+            className={`p-3 rounded justify-self:end hover:bg-opacity-80 ${ThemeUtils.getText(currentTheme, 'SECONDARY')} hover:${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}
+            aria-label="Switch to view mode"
+          >
+            <FaEye size={16} />
+          </button>
+        </div>
         <div className={`rounded overflow-hidden border ${ThemeUtils.getBorder(currentTheme, 'SECONDARY')}`}>
           <MDEditor
             value={content}
