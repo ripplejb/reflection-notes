@@ -119,7 +119,7 @@ src/
 │   ├── HeaderDropdown.tsx       # Dropdown logic (SRP)
 │   ├── MainPage.tsx            # Main layout
 │   ├── DateComponent.tsx       # Date management
-│   └── DiskStorageControls.tsx # File controls
+│   └── EncryptedAppHeader.tsx  # Enhanced file operations with encryption
 ├── services/
 │   ├── ServiceContainer.ts     # DI Container (DIP)
 │   ├── StorageService.ts       # Storage abstraction (DIP, LSP)
@@ -127,7 +127,7 @@ src/
 │   ├── MarkdownProcessor.ts    # Markdown processing (SRP, OCP)
 │   └── ConfigurationService.ts # Configuration (SRP, OCP)
 ├── hooks/
-│   └── useLocalStorage.ts      # Updated to use services (DIP)
+│   └── useEncryptedNotes.ts    # Enhanced notes management with encryption
 ├── models/
 │   └── Note.ts                # Data models
 └── utils/

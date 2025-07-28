@@ -784,7 +784,7 @@ src/
 │   ├── ThemeToggle.tsx           # NEW: Dark/light theme toggle component
 │   ├── DateComponent.tsx         # Date management
 │   ├── DateRangeFilter.tsx       # Date range filtering interface
-│   └── DiskStorageControls.tsx   # File operations
+│   └── EncryptedAppHeader.tsx    # Enhanced file operations with encryption support
 ├── services/                     # SOLID service layer (DI pattern)
 │   ├── ServiceContainer.ts       # Dependency injection container
 │   ├── ConfigurationService.ts   # Enhanced composition-based configuration

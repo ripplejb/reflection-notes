@@ -67,7 +67,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
             options={predefinedHeaders}
             onSelect={handleHeaderSelect}
             onValueChange={onHeaderChange}
-            onFocus={() => {}}
+            onFocus={() => {if (header.trim() === "") setIsDropdownOpen(true);}}
             placeholder="Header or select from dropdown"
             isOpen={isDropdownOpen}
             onToggle={() => setIsDropdownOpen(!isDropdownOpen)}
