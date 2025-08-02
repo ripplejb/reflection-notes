@@ -1,13 +1,13 @@
 // Contents section component following SRP
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import { FaPlus } from "react-icons/fa";
-import { ContentComponent } from './ContentComponent';
-import { DateUtils } from '../utils/DateUtils';
-import { ThemeUtils } from '../utils/ThemeUtils';
-import { APP_CONSTANTS } from '../constants/AppConstants';
-import { serviceContainer } from '../services/ServiceContainer';
-import type { Note, Content } from '../models/Note';
-import type { Theme } from '../services/ThemeService';
+import { ContentComponent } from "./ContentComponent";
+import { DateUtils } from "../utils/DateUtils";
+import { ThemeUtils } from "../utils/ThemeUtils";
+import { APP_CONSTANTS } from "../constants/AppConstants";
+import { serviceContainer } from "../services/ServiceContainer";
+import type { Note, Content } from "../models/Note";
+import type { Theme } from "../services/ThemeService";
 
 interface ContentsSectionProps {
   selectedNote: Note | undefined;
@@ -22,12 +22,13 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   onUpdateContent,
   onDeleteContent,
 }) => {
-  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
-    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() =>
+    serviceContainer.configurationService.getThemeService().getCurrentTheme(),
   );
 
   useEffect(() => {
-    const themeService = serviceContainer.configurationService.getThemeService();
+    const themeService =
+      serviceContainer.configurationService.getThemeService();
     const unsubscribe = themeService.onThemeChange((theme) => {
       setCurrentTheme(theme);
     });
@@ -44,12 +45,14 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
   return (
     <section className="flex-1">
       <div className="flex justify-between items-center mb-2">
-        <h2 className={`font-semibold text-lg ${ThemeUtils.getText(currentTheme, 'PRIMARY')}`}>
+        <h2
+          className={`font-semibold text-lg ${ThemeUtils.getText(currentTheme, "PRIMARY")}`}
+        >
           {getFormattedDateHeader()}
         </h2>
         {selectedNote && (
           <button
-            className={`flex items-center gap-1 ${ThemeUtils.getStatusColor(currentTheme, 'info')} hover:opacity-80`}
+            className={`flex items-center gap-1 ${ThemeUtils.getStatusColor(currentTheme, "info")} hover:opacity-80`}
             onClick={onAddContent}
             aria-label="Add content"
           >
@@ -57,27 +60,30 @@ export const ContentsSection: React.FC<ContentsSectionProps> = ({
           </button>
         )}
       </div>
-      
-      {selectedNote ? (
-        hasContents ? (
-          selectedNote.contents.map((content) => (
-            <ContentComponent
-              key={content.id}
-              content={content}
-              onUpdate={(updated: Content) => onUpdateContent(content.id, updated)}
-              onDelete={() => onDeleteContent(content.id)}
-            />
-          ))
+      <div className="max-h-full overflow-y-auto">
+        {selectedNote ? (
+          hasContents ? (
+            selectedNote.contents.map((content) => (
+              <ContentComponent
+                key={content.id}
+                content={content}
+                onUpdate={(updated: Content) =>
+                  onUpdateContent(content.id, updated)
+                }
+                onDelete={() => onDeleteContent(content.id)}
+              />
+            ))
+          ) : (
+            <div className={ThemeUtils.getText(currentTheme, "MUTED")}>
+              {APP_CONSTANTS.UI_MESSAGES.NO_CONTENTS_FOR_DATE}
+            </div>
+          )
         ) : (
-          <div className={ThemeUtils.getText(currentTheme, 'MUTED')}>
-            {APP_CONSTANTS.UI_MESSAGES.NO_CONTENTS_FOR_DATE}
+          <div className={ThemeUtils.getText(currentTheme, "MUTED")}>
+            {APP_CONSTANTS.UI_MESSAGES.NO_DATE_SELECTED}
           </div>
-        )
-      ) : (
-        <div className={ThemeUtils.getText(currentTheme, 'MUTED')}>
-          {APP_CONSTANTS.UI_MESSAGES.NO_DATE_SELECTED}
-        </div>
-      )}
+        )}
+      </div>
     </section>
   );
 };

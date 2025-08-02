@@ -16,13 +16,14 @@ import type { Theme } from "../services/ThemeService";
 
 export const MainPage: React.FC = () => {
   // Theme state management
-  const [currentTheme, setCurrentTheme] = useState<Theme>(() => 
-    serviceContainer.configurationService.getThemeService().getCurrentTheme()
+  const [currentTheme, setCurrentTheme] = useState<Theme>(() =>
+    serviceContainer.configurationService.getThemeService().getCurrentTheme(),
   );
 
   // Setup theme subscription
   useEffect(() => {
-    const themeService = serviceContainer.configurationService.getThemeService();
+    const themeService =
+      serviceContainer.configurationService.getThemeService();
     const unsubscribe = themeService.onThemeChange((theme) => {
       setCurrentTheme(theme);
     });
@@ -49,9 +50,14 @@ export const MainPage: React.FC = () => {
     handlePasswordSubmit,
   } = useEncryptedNotes();
 
-  const { selectedDate, setSelectedDate, selectedNote, selectFirstAvailableNote } = useSelectedNote({
+  const {
+    selectedDate,
+    setSelectedDate,
+    selectedNote,
+    selectFirstAvailableNote,
+  } = useSelectedNote({
     notes,
-    initialDate: notes.length > 0 ? notes[0].date : ""
+    initialDate: notes.length > 0 ? notes[0].date : "",
   });
 
   const [dateRangeFilter, setDateRangeFilter] = useState<{
@@ -69,7 +75,7 @@ export const MainPage: React.FC = () => {
   useBeforeUnloadWarning({
     hasUnsavedChanges,
     loadedFileName,
-    isFileHandleLost
+    isFileHandleLost,
   });
 
   // Close file functionality
@@ -86,31 +92,39 @@ export const MainPage: React.FC = () => {
   const filteredNotes = notes.filter((note) => {
     const { startDate, endDate } = dateRangeFilter;
     if (!startDate && !endDate) return true;
-    
+
     const noteDate = new Date(note.date);
     const start = startDate ? new Date(startDate) : null;
     const end = endDate ? new Date(endDate) : null;
-    
+
     return (!start || noteDate >= start) && (!end || noteDate <= end);
   });
 
-  const handleDateRangeFilterChange = (startDate: string | null, endDate: string | null) => {
+  const handleDateRangeFilterChange = (
+    startDate: string | null,
+    endDate: string | null,
+  ) => {
     setDateRangeFilter({ startDate, endDate });
   };
 
   const handleAddDate = () => {
     setDateRangeFilter({ startDate: null, endDate: null });
-    const newNote = serviceContainer.noteOperationsService.createNewNote(APP_CONSTANTS.DEFAULT_USER);
+    const newNote = serviceContainer.noteOperationsService.createNewNote(
+      APP_CONSTANTS.DEFAULT_USER,
+    );
     addOrUpdateNote(newNote);
     setSelectedDate(newNote.date);
   };
 
   const handleUpdateDate = (oldDate: string, newDate: string) => {
     if (oldDate === newDate || notes.some((n) => n.date === newDate)) return;
-    
+
     const note = notes.find((n) => n.date === oldDate);
     if (note) {
-      const updatedNote = serviceContainer.noteOperationsService.updateNoteDate(note, newDate);
+      const updatedNote = serviceContainer.noteOperationsService.updateNoteDate(
+        note,
+        newDate,
+      );
       deleteNote(oldDate);
       addOrUpdateNote(updatedNote);
       setSelectedDate(newDate);
@@ -128,35 +142,43 @@ export const MainPage: React.FC = () => {
 
   const handleAddContent = () => {
     if (!selectedNote) return;
-    
-    const newContent = serviceContainer.noteOperationsService.createNewContent();
-    const updatedNote = serviceContainer.noteOperationsService.addContentToNote(selectedNote, newContent);
+
+    const newContent =
+      serviceContainer.noteOperationsService.createNewContent();
+    const updatedNote = serviceContainer.noteOperationsService.addContentToNote(
+      selectedNote,
+      newContent,
+    );
     addOrUpdateNote(updatedNote);
   };
 
   const handleUpdateContent = (id: string, updated: Content) => {
     if (!selectedNote) return;
-    
-    const updatedNote = serviceContainer.noteOperationsService.updateContentInNote(
-      selectedNote, 
-      id, 
-      updated
-    );
+
+    const updatedNote =
+      serviceContainer.noteOperationsService.updateContentInNote(
+        selectedNote,
+        id,
+        updated,
+      );
     addOrUpdateNote(updatedNote);
   };
 
   const handleDeleteContent = (id: string) => {
     if (selectedNote && UIUtils.confirmDeleteContent()) {
-      const updatedNote = serviceContainer.noteOperationsService.removeContentFromNote(
-        selectedNote, 
-        id
-      );
+      const updatedNote =
+        serviceContainer.noteOperationsService.removeContentFromNote(
+          selectedNote,
+          id,
+        );
       addOrUpdateNote(updatedNote);
     }
   };
 
   return (
-    <div className={`min-h-screen ${ThemeUtils.getTransitions()} ${ThemeUtils.getBackground(currentTheme, 'SECONDARY')}`}>
+    <div
+      className={`max-h-full ${ThemeUtils.getTransitions()} ${ThemeUtils.getBackground(currentTheme, "SECONDARY")}`}
+    >
       <EncryptedAppHeader
         isAutoSaving={isAutoSaving}
         loadedFileName={loadedFileName}
@@ -169,8 +191,8 @@ export const MainPage: React.FC = () => {
         onWarnUnsaved={warnUnsaved}
         onClose={handleClose}
       />
-      
-      <main className="flex flex-row gap-4 px-6 py-6">
+
+      <main className="flex flex-row gap-x-4 px-6 pt-2 pb-10 max-h-[calc(100vh-5rem)]">
         <DatesSection
           filteredNotes={filteredNotes}
           selectedDate={selectedDate}
@@ -181,7 +203,7 @@ export const MainPage: React.FC = () => {
           onAddDate={handleAddDate}
           onDateRangeFilterChange={handleDateRangeFilterChange}
         />
-        
+
         <ContentsSection
           selectedNote={selectedNote}
           onAddContent={handleAddContent}
